@@ -1,0 +1,12 @@
+{
+  "name": "@dokonim/bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@dokonim/core": "*",
+    "@dokonim/i18n": "*",
+    "grammy": "^1.46.0"
+  }
+}

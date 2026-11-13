@@ -1,0 +1,51 @@
+{
+  "name": "dokonim",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Do'konim — a multi-tenant store builder that runs as a Telegram Mini App",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run --project core --project payments --project i18n --project seed --project contract",
+    "test:db": "vitest run --project db",
+    "test:api": "vitest run --project api --project bot",
+    "test:ui": "vitest run --project miniapp",
+    "build:demo": "npm run build:demo -w @dokonim/miniapp",
+    "build": "npm run build -w @dokonim/miniapp",
+    "dev": "npm run dev -w @dokonim/miniapp",
+    "dev:api": "npm run dev -w @dokonim/api",
+    "e2e": "playwright test",
+    "size": "node scripts/size-check.mjs",
+    "lighthouse": "node scripts/lighthouse.mjs"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.0",
+    "fast-check": "^4.10.2",
+    "eslint": "^10.14.0",
+    "@eslint/js": "^10.0.0",
+    "typescript-eslint": "^8.72.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tsx": "^4.23.15",
+    "@playwright/test": "^1.65.0",
+    "@axe-core/playwright": "^4.14.0",
+    "jsdom": "^31.0.1",
+    "@testing-library/react": "^16.3.3",
+    "lighthouse": "^13.6.0"
+  }
+}
