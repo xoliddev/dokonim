@@ -79,7 +79,7 @@ export default function OrderDetail({ params }: RouteProps) {
 
   const tone = o ? (STATUS_TONE[o.status] ?? 'muted') : 'muted';
   return (
-    <SellerScreen kicker={o ? dateTime(o.placedAt) : undefined} title={o ? t('seller.orderNo', { n: o.number }) : '…'}>
+    <SellerScreen kicker={o ? dateTime(o.placedAt) : undefined} title={o ? t('seller.orderNo', { n: String(o.number) }) : '…'}>
       <Gate loading={!o && !q.error} error={!o && (s.error ?? q.error)} onRetry={q.reload}>
         {o && (
           <>

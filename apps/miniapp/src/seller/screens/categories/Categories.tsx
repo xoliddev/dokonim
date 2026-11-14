@@ -51,9 +51,20 @@ export default function Categories(_: RouteProps) {
     setLocal(null);
     if (server && !seeded.current) {
       seeded.current = true;
-      setExpanded(new Set(server.map((n) => n.id)));
+      let saved: string[] | null = null;
+      try {
+        saved = JSON.parse(sessionStorage.getItem(`sl.cats.open.${s.storeId}`) ?? 'null') as string[] | null;
+      } catch {}
+      setExpanded(new Set(saved ?? server.map((n) => n.id)));
     }
-  }, [server]);
+  }, [server, s.storeId]);
+  // remember which branches are open for this session (coming back from a product keeps the tree as it was)
+  useEffect(() => {
+    if (!seeded.current || !s.storeId) return;
+    try {
+      sessionStorage.setItem(`sl.cats.open.${s.storeId}`, JSON.stringify([...expanded]));
+    } catch {}
+  }, [expanded, s.storeId]);
 
   const rows = useMemo(() => visibleRows(nodes, expanded, search), [nodes, expanded, search]);
   const depth = useMemo(() => maxDepth(nodes), [nodes]);

@@ -78,8 +78,8 @@ button.sl-row:active, a.sl-row:active { background: var(--c-surface-sunken); }
 .sl-pill.is-info { background: var(--c-accent-soft); color: var(--c-accent-text); }
 
 /* floating action */
-.sl-fab { position: sticky; bottom: 76px; justify-self: end; z-index: 15; display: inline-flex; align-items: center; gap: 8px; height: 52px; padding: 0 20px 0 16px; margin-top: -8px;
-  border: 0; border-radius: 26px; background: var(--c-ink); color: var(--c-surface); font: 650 var(--fs-md) / 1 var(--font-ui); box-shadow: 3px 4px 0 var(--c-print); cursor: pointer;
+.sl-fab { position: sticky; bottom: 76px; justify-self: end; z-index: 15; display: grid; place-items: center; width: 56px; height: 56px; padding: 0; margin-top: -8px;
+  border: 0; border-radius: 50%; background: var(--c-ink); color: var(--c-surface); font: 650 var(--fs-md) / 1 var(--font-ui); box-shadow: 3px 4px 0 var(--c-print); cursor: pointer;
   transition: transform var(--dur-xs) var(--ease-standard); }
 .sl-fab:active { transform: translate(2px, 2px); }
 
@@ -141,3 +141,8 @@ button.sl-row:active, a.sl-row:active { background: var(--c-surface-sunken); }
 .pe-2col .field-box { min-width: 0; }
 .pe-2col .field-control { width: 100%; }
 .pe-wrap { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+/* let seller screens fill the scroller so the tab bar rests on the bottom even when content is short */
+.screen:has(> .sl-screen) { display: flex; flex-direction: column; }
+.screen > .sl-screen { flex: 1 0 auto; }
+.cf-more { justify-self: start; display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; padding: 4px 0; color: var(--c-accent-text); font: 600 var(--fs-sm) / 1 var(--font-ui); cursor: pointer; }
+.sl-body { grid-template-columns: minmax(0, 1fr); }

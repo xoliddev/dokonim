@@ -103,12 +103,12 @@ export default function Orders({ query }: RouteProps) {
                   const first = o.items?.[0];
                   const qty = (o.items ?? []).reduce((n, x) => n + x.qty, 0);
                   return (
-                    <m.div key={o.id} className="or-row" layout={tier === 'full' ? 'position' : false} initial={tier === 'minimal' ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring.snappy, delay: staggerDelay(i) }}>
+                    <m.div key={o.id} className={`or-row${o.status === 'paid' || o.status === 'awaiting_confirmation' ? ' has-quick' : ''}`} layout={tier === 'full' ? 'position' : false} initial={tier === 'minimal' ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring.snappy, delay: staggerDelay(i) }}>
                       <button type="button" className="sl-row" onClick={() => navigate(`/m/${s.slug}/orders/${o.id}`)}>
                         {first?.imageUrl ? <img className="sl-thumb" src={first.imageUrl} alt="" /> : <span className="sl-thumb or-no">#{o.number}</span>}
                         <span className="sl-row-main">
                           <span className="sl-row-title">
-                            {t('seller.orderNo', { n: o.number })} · {o.contact?.name || '—'}
+                            {t('seller.orderNo', { n: String(o.number) })} · {o.contact?.name || '—'}
                           </span>
                           <span className="sl-row-sub">
                             {t('seller.ordItems', { n: qty })} · {relativeDay(o.placedAt)} {time(o.placedAt)}

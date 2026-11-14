@@ -40,3 +40,4 @@
 .od-tl-meta { font-size: var(--fs-xs); color: var(--c-ink-muted); }
 .od-note-form { display: flex; gap: 8px; align-items: flex-end; }
 .od-note-form .field { flex: 1; }
+.or-row.has-quick > .sl-row { padding-bottom: 50px; }

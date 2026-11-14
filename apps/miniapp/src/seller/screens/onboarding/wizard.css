@@ -74,3 +74,6 @@
 .wz-qr { padding: 10px; border-radius: 18px; background: #fff; box-shadow: var(--e2); line-height: 0; }
 .wz-done-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .wz-done-preview { width: 100%; max-width: 280px; margin-top: 6px; }
+.wz-done { grid-template-columns: minmax(0, 1fr); }
+.wz-done > * { max-width: 100%; }
+.wz-body { grid-template-columns: minmax(0, 1fr); }

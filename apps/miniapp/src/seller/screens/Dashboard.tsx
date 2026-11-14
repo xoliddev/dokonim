@@ -138,7 +138,7 @@ export default function Dashboard(_: RouteProps) {
                   <Link key={o.id} className="sl-row" to={`/m/${s.slug}/orders/${o.id}`}>
                     <span className="sl-row-icon db-order-no">{o.number}</span>
                     <span className="sl-row-main">
-                      <span className="sl-row-title">{o.contact?.name || t('seller.orderNo', { n: o.number })}</span>
+                      <span className="sl-row-title">{o.contact?.name || t('seller.orderNo', { n: String(o.number) })}</span>
                       <span className="sl-row-sub">{relativeDay(o.placedAt)} · {time(o.placedAt)}</span>
                     </span>
                     <span className="sl-row-end">
@@ -153,8 +153,8 @@ export default function Dashboard(_: RouteProps) {
           <p className="sl-hint db-counts">{t('seller.catalogCounts', { n: d.counts.products, d: d.counts.drafts })}</p>
         </>
       )}
-      <button type="button" className="sl-fab" onClick={() => go('products/new')}>
-        <SIcon name="plus" size={22} /> {t('seller.newProduct')}
+      <button type="button" className="sl-fab" aria-label={t('seller.newProduct')} title={t('seller.newProduct')} onClick={() => go('products/new')}>
+        <SIcon name="plus" size={26} />
       </button>
     </SellerScreen>
   );

@@ -37,7 +37,7 @@ export default function Promos(_: RouteProps) {
     if (p.startsAt && Date.parse(p.startsAt) > now) return ['info', t('seller.prScheduled')] as const;
     return ['good', t('seller.prActive')] as const;
   };
-  const value = (p: Promo) => (p.valueType === 'percent' ? `${p.value}%` : p.valueType === 'fixed' ? money(p.value) : p.valueType === 'bxgy' ? `${p.bxgy?.buy ?? 0}+${p.bxgy?.get ?? 0}` : t('seller.vt_free_shipping'));
+  const value = (p: Promo) => (p.valueType === 'percent' ? `${p.value}%` : p.valueType === 'fixed' ? money(p.value) : p.valueType === 'bxgy' ? `${p.bxgy?.buy ?? 0}+${p.bxgy?.get ?? 0}` : <SIcon name="truck" size={30} label={t('seller.vt_free_shipping')} />);
 
   const toggle = async (p: Promo, on: boolean) => {
     if (!s.storeId) return;

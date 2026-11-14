@@ -49,10 +49,11 @@ export function useTreeDrag({ rows, nodes, rowH, listRef, onDrop }: { rows: Row[
     const sc = d.scroller;
     if (sc) {
       const r = sc.getBoundingClientRect();
-      const edge = 64;
+      // gentle edge auto-scroll: up to ~8 px per frame, ramping with depth into the 48 px edge band
+      const edge = 48;
       let v = 0;
-      if (d.y < r.top + edge) v = -Math.ceil((r.top + edge - d.y) / 6);
-      else if (d.y > r.bottom - edge) v = Math.ceil((d.y - (r.bottom - edge)) / 6);
+      if (d.y < r.top + edge) v = -Math.min(8, Math.ceil((r.top + edge - d.y) / 6));
+      else if (d.y > r.bottom - edge) v = Math.min(8, Math.ceil((d.y - (r.bottom - edge)) / 6));
       if (v) {
         sc.scrollTop += v;
         compute();

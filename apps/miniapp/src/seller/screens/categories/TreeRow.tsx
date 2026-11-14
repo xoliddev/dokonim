@@ -31,12 +31,12 @@ export function TreeRow({ row, drag, overZone, flash, canDrag, onToggle, onOpen,
     <m.div
       layout={tier === 'full' && !drag ? 'position' : false}
       initial={tier === 'minimal' ? false : { opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
+      animate={dragging ? { opacity: 1, y: drag!.dy, scale: 1.02 } : { opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.1 } }}
-      transition={spring.snappy}
+      transition={dragging ? { duration: 0 } : spring.snappy}
       className={`ct-row${dragging ? ' is-dragging' : ''}${flash ? ' is-flash' : ''}${n.isHidden ? ' is-hidden' : ''}`}
       data-zone={overZone ?? undefined}
-      style={{ height: ROW_H, ...(dragging ? { transform: `translateY(${drag!.dy}px) scale(1.02)`, zIndex: 5 } : null) }}
+      style={{ height: ROW_H, zIndex: dragging ? 5 : undefined }}
       role="treeitem"
       aria-level={row.depth + 1}
       aria-expanded={row.hasChildren ? row.expanded : undefined}

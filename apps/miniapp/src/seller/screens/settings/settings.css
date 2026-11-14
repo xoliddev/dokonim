@@ -4,7 +4,8 @@
 /* theme — the preview stays pinned while the token panel scrolls under it (split view) */
 .th-stage { position: sticky; top: -14px; z-index: 6; display: grid; justify-items: center; gap: 6px; margin: 0 -16px; padding: 10px 16px 10px;
   background: color-mix(in oklab, var(--c-surface) 94%, transparent); border-bottom: 1px solid var(--c-outline); }
-.th-preview { width: min(232px, 64vw); max-height: 40vh; overflow: hidden; }
+.th-preview { width: min(240px, 66vw); height: min(300px, 38vh); overflow: hidden; align-content: start; }
+.th-preview > .pv-paper { align-self: start; min-height: 0; }
 .th-status { display: flex; align-items: center; gap: 8px; }
 .th-presets { display: grid; grid-auto-flow: column; grid-auto-columns: 104px; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 6px; scrollbar-width: none; }
 .th-presets::-webkit-scrollbar { display: none; }

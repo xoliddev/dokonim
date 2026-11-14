@@ -18,3 +18,5 @@
 .pr-code-row { display: flex; gap: 8px; align-items: flex-end; }
 .pr-code-row .field { flex: 1; }
 .pr-code-row .sl-icon-btn { margin-bottom: 3px; }
+.pr-stub .sl-pill { background: color-mix(in oklab, var(--c-surface) 16%, transparent); color: var(--c-surface); }
+.pr-stub .sl-pill.is-good::before { background: #3ccf7a; }
