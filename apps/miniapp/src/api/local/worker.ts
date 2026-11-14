@@ -6,7 +6,7 @@
 import { ApiError, ROUTES, validate, type RouteDef, type RouteName } from '@dokonim/contract';
 import { DomainError, signInitData, systemClock } from '@dokonim/core';
 import { createBackend, migrate, SYSTEM, type Actor, type Backend, type Database } from '@dokonim/db';
-import { createPgliteDatabase } from '@dokonim/db/pglite';
+import { createPglite, createPgliteDatabase, wrapPglite } from '@dokonim/db/pglite';
 import { createPaymentRegistry } from '@dokonim/payments';
 import { DEMO_BOT_TOKEN, DEMO_KEK, DEMO_USER, isSeeded, seedDemo } from '@dokonim/seed';
 import type { BackendStatus, SerializedError } from '../types';
@@ -31,14 +31,65 @@ interface Live {
   actor: Actor;
   timer: ReturnType<typeof setInterval>;
 }
-let live: Promise<Live> = boot();
+const deleteIdb = () =>
+  new Promise<void>((resolve) => {
+    try {
+      const r = indexedDB.deleteDatabase(IDB_PATH);
+      r.onsuccess = r.onerror = r.onblocked = () => resolve();
+    } catch {
+      resolve();
+    }
+  });
 
+/** False only when the browser can list databases and ours is not there (first visit). */
+async function idbMayExist(): Promise<boolean> {
+  try {
+    const list = await (indexedDB as IDBFactory & { databases?: () => Promise<Array<{ name?: string }>> }).databases?.();
+    return list ? list.some((d) => d.name === IDB_PATH) : true;
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Opens the persisted database, seeding it on the first run. Seeding runs against an in-memory PGlite (hundreds of
+ * transactions with no IndexedDB writes), then the data directory is dumped once and loaded into `idb://`.
+ */
 async function openDb(): Promise<{ db: Database; persistent: boolean }> {
+  const seed = async (pg: Database) => {
+    setStatus({ phase: 'seeding', progress: 0 });
+    await seedDemo(pg, { onProgress: (_s, done, total) => setStatus({ progress: total ? (done / total) * 0.95 : 0 }) });
+  };
+  let idb: Database | null = null;
   try {
     if (typeof indexedDB === 'undefined') throw new Error('no IndexedDB');
-    return { db: await createPgliteDatabase(`idb://${IDB_NAME}`, { relaxedDurability: true }), persistent: true };
+    // Opening an empty idb:// store runs initdb and syncs a whole fresh cluster to IndexedDB — skip it on first run.
+    if (await idbMayExist()) {
+      idb = await createPgliteDatabase(`idb://${IDB_NAME}`);
+      if (await isSeeded(idb)) {
+        setStatus({ phase: 'migrating', persistent: true });
+        await migrate(idb); // applies only migrations added since the visitor's last visit
+        return { db: idb, persistent: true };
+      }
+      await idb.close();
+      idb = null;
+    }
+    const mem = await createPglite();
+    const memDb = wrapPglite(mem);
+    await migrate(memDb);
+    await seed(memDb);
+    const tar = await mem.dumpDataDir('none');
+    await mem.close();
+    await deleteIdb();
+    return { db: wrapPglite(await createPglite(`idb://${IDB_NAME}`, { loadDataDir: tar })), persistent: true };
   } catch {
-    return { db: await createPgliteDatabase(), persistent: false };
+    await idb?.close().catch(() => {});
+    // Private mode / no IndexedDB: everything lives in memory and the label says it won't persist.
+    const db = await createPgliteDatabase();
+    setStatus({ phase: 'migrating', persistent: false });
+    await migrate(db);
+    if (!(await isSeeded(db))) await seed(db);
+    return { db, persistent: false };
   }
 }
 
@@ -46,12 +97,7 @@ async function boot(): Promise<Live> {
   try {
     setStatus({ phase: 'booting', progress: 0, error: undefined });
     const { db, persistent } = await openDb();
-    setStatus({ phase: 'migrating', persistent });
-    await migrate(db);
-    if (!(await isSeeded(db))) {
-      setStatus({ phase: 'seeding', progress: 0 });
-      await seedDemo(db, { onProgress: (_s, done, total) => setStatus({ progress: total ? done / total : 0 }) });
-    }
+    setStatus({ persistent });
     const backend = createBackend({
       db,
       clock: systemClock,
@@ -77,6 +123,8 @@ async function boot(): Promise<Live> {
   }
 }
 
+let live: Promise<Live> = boot();
+
 function serialize(e: unknown): SerializedError {
   if (e instanceof ApiError) return { code: e.code, message: e.message, details: e.details, status: e.status };
   if (e instanceof DomainError) return { code: e.code, message: e.message, details: e.details };
@@ -98,14 +146,7 @@ async function reset() {
     clearInterval(l.timer);
     await l.db.close().catch(() => {});
   }
-  await new Promise<void>((resolve) => {
-    try {
-      const r = indexedDB.deleteDatabase(IDB_PATH);
-      r.onsuccess = r.onerror = r.onblocked = () => resolve();
-    } catch {
-      resolve();
-    }
-  });
+  await deleteIdb();
   live = boot();
   await live;
 }

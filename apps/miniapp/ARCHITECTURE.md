@@ -86,8 +86,9 @@ latest screen or sheet wins). `haptic.impact('light'|'soft'|'rigid'|…)`, `hapt
 phone frame; inside Telegram they call the real WebApp API. Do not reach for `window.Telegram` directly.
 
 ## Demo backend
-`src/api/local/worker.ts`: PGlite (`idb://dokonim-demo`, memory fallback) → `migrate` → `seedDemo` on the first run
-(about 10–16 s, with a progress screen) → `createBackend` → real initData HMAC login. Reloads take about 1.5 s.
+`src/api/local/worker.ts`: PGlite (`idb://dokonim-demo`, memory fallback) → `migrate` → `createBackend` → real initData
+HMAC login. First visit: `seedDemo` runs in an in-memory PGlite, then the data dir is dumped once into IndexedDB
+(about 15 s on an idle laptop, longer on a busy one; a progress screen is shown). Reloads take about 2 s.
 `client.resetDemo()` wipes IndexedDB and re-seeds. Seed stores: `atlas-adras` (clothing, light), `texno-bozor`
 (electronics, dark Volt preset), `choyxona-market` (food). Promo codes: SALOM10, BEPULYETKAZISH, TOY50, TEXNO5,
 MINUS100, CHOY15. Flash sales are relative to now.

@@ -21,9 +21,18 @@ function wrap(q: { query: PGlite['query'] }): Sql {
   };
 }
 
+/** A raw PGlite instance with our extensions and type parsers (for dumpDataDir / loadDataDir). */
+export function createPglite(dataDir?: string, opts: Partial<PGliteOptions> = {}): Promise<PGlite> {
+  return PGlite.create({ dataDir, extensions: { ltree, pg_trgm }, parsers: PGLITE_PARSERS, ...opts });
+}
+
 /** dataDir: undefined → memory, 'idb://name' → IndexedDB persistence (browser), or a filesystem path (Node). */
 export async function createPgliteDatabase(dataDir?: string, opts: Partial<PGliteOptions> = {}): Promise<Database> {
-  const pg = await PGlite.create({ dataDir, extensions: { ltree, pg_trgm }, parsers: PGLITE_PARSERS, ...opts });
+  return wrapPglite(await createPglite(dataDir, opts));
+}
+
+/** Adapts a PGlite instance to the Database port. */
+export function wrapPglite(pg: PGlite): Database {
   const base = wrap(pg);
   return {
     kind: 'pglite',
