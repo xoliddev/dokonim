@@ -3,9 +3,8 @@
  * (Home · Catalog · Cart · Profile, §6.2). The cart tab is The Arc's landing target and rolls its badge.
  */
 import type { ReactNode } from 'react';
-import { m } from 'motion/react';
 import { useI18n } from '../lib/i18n';
-import { Odometer, spring, useCartTarget, useMotionTier } from '../../motion';
+import { Odometer, useCartTarget } from '../../motion';
 import { navigate } from '../../router/router';
 import { haptic } from '../../telegram/shim';
 import { Icon, type IconName } from '../../ui';
@@ -17,7 +16,6 @@ export type Tab = 'home' | 'catalog' | 'cart' | 'profile';
 
 export function TabBar({ slug, active }: { slug: string; active: Tab | null }) {
   const { t } = useI18n();
-  const tier = useMotionTier();
   const cart = useCart(slug);
   const target = useCartTarget();
   const count = cart.data?.count ?? 0;
@@ -43,7 +41,7 @@ export function TabBar({ slug, active }: { slug: string; active: Tab | null }) {
             }}
           >
             <span className="st-tab-icon" ref={tab.id === 'cart' ? target : undefined}>
-              {on && (tier === 'minimal' ? <span className="st-tab-ind" /> : <m.span layoutId="st-tab-ind" className="st-tab-ind" transition={spring.snappy} />)}
+              {on && <span className="st-tab-ind" />}
               <Icon name={tab.icon} filled={on} size={22} />
               {tab.id === 'cart' && count > 0 && (
                 <span className="st-tab-badge">

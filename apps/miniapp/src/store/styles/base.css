@@ -30,7 +30,11 @@
   color: var(--c-ink-muted); font-size: 11px; font-weight: 600; letter-spacing: 0.01em; }
 .st-tab.is-active { color: var(--c-accent-text); }
 .st-tab-icon { position: relative; display: grid; place-items: center; width: 44px; height: 28px; }
-.st-tab-ind { position: absolute; inset: 0; border-radius: 14px; background: var(--c-accent-soft); z-index: -1; }
+.st-tab-ind { position: absolute; inset: 0; border-radius: 14px; background: var(--c-accent-soft); z-index: -1; animation: st-tab-in 320ms var(--ease-decel); }
+/* No shared layoutId here: a layout-projected element inside an exiting popLayout screen can stall AnimatePresence. */
+@keyframes st-tab-in { from { transform: scaleX(0.35); opacity: 0; } to { transform: none; opacity: 1; } }
+.st-tab.is-active .icon { animation: st-tab-pop 360ms var(--ease-decel); }
+@keyframes st-tab-pop { 0% { transform: translateY(2px) scale(0.85); } 60% { transform: translateY(-2px) scale(1.08); } 100% { transform: none; } }
 .st-tab-badge { position: absolute; top: -3px; left: 27px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; display: grid; place-items: center;
   background: var(--c-accent); color: var(--c-on-accent); font-size: 11px; font-weight: 800; box-shadow: 0 0 0 2px var(--c-surface-raised); line-height: 1; }
 .st-tab-icon > * { position: relative; }
@@ -66,10 +70,10 @@
 .st-row.is-between { justify-content: space-between; }
 .st-stack { display: grid; gap: 10px; }
 .st-badge { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 7px; font-size: 11px; font-weight: 800; letter-spacing: 0.02em; }
-.st-badge.is-sale { background: var(--c-sale); color: #fff; }
+.st-badge.is-sale { background: var(--c-sale); color: var(--c-surface-raised); }
 .st-badge.is-ink { background: var(--c-ink); color: var(--c-surface); }
 .st-badge.is-soft { background: var(--c-accent-soft); color: var(--c-accent-text); }
-.st-badge.is-sandbox { background: repeating-linear-gradient(-45deg, var(--c-warning) 0 8px, color-mix(in oklab, var(--c-warning) 80%, #000) 8px 16px); color: #fff; }
+.st-badge.is-sandbox { background: repeating-linear-gradient(-45deg, var(--c-warning) 0 8px, color-mix(in oklab, var(--c-warning) 80%, var(--c-ink)) 8px 16px); color: var(--c-surface); }
 .st-stars { display: inline-flex; gap: 1px; color: var(--c-rating); }
 .st-stars .is-off { opacity: 0.25; }
 .st-rating { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-xs); color: var(--c-ink-muted); font-weight: 600; }
