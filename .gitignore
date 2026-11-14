@@ -12,3 +12,6 @@ lighthouse-report/
 .DS_Store
 *.tsbuildinfo
 .vite/
+
+# demo snapshot, baked by apps/miniapp/scripts/bake-demo.ts at build time
+apps/miniapp/public/demo/

@@ -8,7 +8,7 @@ import { DomainError, signInitData, systemClock } from '@dokonim/core';
 import { createBackend, migrate, SYSTEM, type Actor, type Backend, type Database } from '@dokonim/db';
 import { createPglite, createPgliteDatabase, wrapPglite } from '@dokonim/db/pglite';
 import { createPaymentRegistry } from '@dokonim/payments';
-import { DEMO_BOT_TOKEN, DEMO_KEK, DEMO_USER, isSeeded, seedDemo } from '@dokonim/seed';
+import { DEMO_BOT_TOKEN, DEMO_KEK, DEMO_USER, isSeeded, rebaseSnapshot, seedDemo } from '@dokonim/seed';
 import type { BackendStatus, SerializedError } from '../types';
 import { IDB_NAME, IDB_PATH, type FromWorker, type ToWorker } from './protocol';
 
@@ -52,15 +52,48 @@ async function idbMayExist(): Promise<boolean> {
 }
 
 /**
- * Opens the persisted database, seeding it on the first run. Seeding runs against an in-memory PGlite (hundreds of
- * transactions with no IndexedDB writes), then the data directory is dumped once and loaded into `idb://`.
+ * The pre-baked snapshot (`scripts/bake-demo.ts`): the three demo stores seeded at build time, as a gzipped PGlite
+ * data directory. Null when it is missing (plain `vite` dev without a bake) so we fall back to seeding in place.
+ */
+async function fetchSnapshot(): Promise<Blob | null> {
+  try {
+    const res = await fetch(new URL(`${import.meta.env.BASE_URL}demo/snapshot.tar.gz`, self.location.origin));
+    if (!res.ok) return null;
+    const buf = new Uint8Array(await res.arrayBuffer());
+    // a server that sets Content-Encoding hands us the tar already inflated: label it by its magic bytes
+    const gzip = buf[0] === 0x1f && buf[1] === 0x8b;
+    return buf.length > 1024 ? new Blob([buf], { type: gzip ? 'application/x-gzip' : 'application/x-tar' }) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Seeds in an in-memory PGlite and dumps it: the slow path, only when the snapshot is unavailable. */
+async function seedToTar(): Promise<Blob> {
+  setStatus({ phase: 'seeding', progress: 0 });
+  const mem = await createPglite();
+  const memDb = wrapPglite(mem);
+  await migrate(memDb);
+  await seedDemo(memDb, { onProgress: (_s, done, total) => setStatus({ progress: total ? (done / total) * 0.95 : 0 }) });
+  const tar = await mem.dumpDataDir('none');
+  await mem.close();
+  return tar;
+}
+
+/** Shifts a fresh snapshot's dates to now and applies migrations added after it was baked. */
+async function prepare(db: Database) {
+  setStatus({ phase: 'migrating' });
+  await rebaseSnapshot(db, new Date());
+  await migrate(db);
+}
+
+/**
+ * Opens the persisted database. First visit (and Reset demo): download the snapshot and load it straight into
+ * `idb://`; reloads open IndexedDB as is. Without IndexedDB (private mode) the snapshot is loaded into memory.
  */
 async function openDb(): Promise<{ db: Database; persistent: boolean }> {
-  const seed = async (pg: Database) => {
-    setStatus({ phase: 'seeding', progress: 0 });
-    await seedDemo(pg, { onProgress: (_s, done, total) => setStatus({ progress: total ? (done / total) * 0.95 : 0 }) });
-  };
   let idb: Database | null = null;
+  const snapshot = fetchSnapshot();
   try {
     if (typeof indexedDB === 'undefined') throw new Error('no IndexedDB');
     // Opening an empty idb:// store runs initdb and syncs a whole fresh cluster to IndexedDB — skip it on first run.
@@ -74,21 +107,24 @@ async function openDb(): Promise<{ db: Database; persistent: boolean }> {
       await idb.close();
       idb = null;
     }
-    const mem = await createPglite();
-    const memDb = wrapPglite(mem);
-    await migrate(memDb);
-    await seed(memDb);
-    const tar = await mem.dumpDataDir('none');
-    await mem.close();
+    setStatus({ phase: 'booting', progress: 0.3 });
+    const tar = (await snapshot) ?? (await seedToTar());
     await deleteIdb();
-    return { db: wrapPglite(await createPglite(`idb://${IDB_NAME}`, { loadDataDir: tar })), persistent: true };
+    setStatus({ progress: 0.6 });
+    const db = wrapPglite(await createPglite(`idb://${IDB_NAME}`, { loadDataDir: tar }));
+    await prepare(db);
+    return { db, persistent: true };
   } catch {
     await idb?.close().catch(() => {});
     // Private mode / no IndexedDB: everything lives in memory and the label says it won't persist.
-    const db = await createPgliteDatabase();
+    const tar = await snapshot;
+    const db = tar ? wrapPglite(await createPglite(undefined, { loadDataDir: tar })) : await createPgliteDatabase();
     setStatus({ phase: 'migrating', persistent: false });
-    await migrate(db);
-    if (!(await isSeeded(db))) await seed(db);
+    if (tar) await prepare(db);
+    else {
+      await migrate(db);
+      if (!(await isSeeded(db))) await seedDemo(db);
+    }
     return { db, persistent: false };
   }
 }

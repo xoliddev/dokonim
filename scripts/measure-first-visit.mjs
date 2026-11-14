@@ -8,7 +8,7 @@ import { chromium } from '@playwright/test';
 
 const url = process.argv[2] ?? 'http://localhost:4173/dokonim/';
 const runs = Number(process.argv[3] ?? 3);
-const browser = await chromium.launch();
+const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'chromium' });
 const ready = (page) => page.locator('.screen-scroll .screen').first().waitFor({ state: 'visible', timeout: 15 * 60_000 });
 const first = [];
 const warm = [];

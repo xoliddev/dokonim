@@ -23,6 +23,7 @@ import { texno } from './stores/texno';
 export * from './art';
 export type { StoreSpec, ProductSpec, CatSpec, PromoSpec } from './spec';
 export { SeedClock } from './build';
+export { markSnapshot, rebaseSnapshot, snapshotAnchor } from './snapshot';
 
 export const DEMO_STORES: StoreSpec[] = [atlas, texno, choyxona];
 export const DEMO_SLUGS = DEMO_STORES.map((s) => s.slug);

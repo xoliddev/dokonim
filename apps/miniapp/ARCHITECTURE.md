@@ -22,11 +22,13 @@ export const storeRoutes: RouteDef[] = [{ path: '/s/:slug/cart', component: Cart
 // src/store/screens/Cart.tsx
 export default function Cart({ params, query }: RouteProps) { … }   // params.slug, query.get('q')
 ```
-Patterns: `:param`, trailing `*` splat (`params['*']`). The most specific match wins. Keep the `/s/:slug/*` placeholder
-last-resort route until every path has a screen. Navigation: `navigate('/s/x/cart')`, `navigate(to, { replace: true })`,
+Patterns: `:param`, trailing `*` splat (`params['*']`). The most specific match wins, compared segment by segment
+(static > param > splat), and an exact pattern beats a splat that matches with an empty rest, so the `/s/:slug/*` and
+`/m/:slug/*` NotFound routes never shadow the home screens. Navigation: `navigate('/s/x/cart')`, `navigate(to, { replace: true })`,
 `back(fallback)`, `<Link to="…">`. `useLocation()` gives `{ path, query, direction }`. Screens render inside a scroll
 container with the page transition already applied; wrap content in `<div className="screen-pad">`.
-The shell already wires Telegram **BackButton → history back** (store home → hub). Override with `useBackButton(fn)`.
+Sheets and stories portal into `#overlay-root`, which sits inside `<main>` between the faux header and the
+MainButton bar (the real Mini App viewport), so a scrim never covers the MainButton. The shell already wires Telegram **BackButton → history back** (store home → hub). Override with `useBackButton(fn)`.
 
 ## Calling the API
 All 115 public contract methods, typed end to end (inputs = zod schemas in `packages/contract`, outputs = db services):
@@ -87,9 +89,12 @@ phone frame; inside Telegram they call the real WebApp API. Do not reach for `wi
 
 ## Demo backend
 `src/api/local/worker.ts`: PGlite (`idb://dokonim-demo`, memory fallback) → `migrate` → `createBackend` → real initData
-HMAC login. First visit: `seedDemo` runs in an in-memory PGlite, then the data dir is dumped once into IndexedDB
-(about 15 s on an idle laptop, longer on a busy one; a progress screen is shown). Reloads take about 2 s.
-`client.resetDemo()` wipes IndexedDB and re-seeds. Seed stores: `atlas-adras` (clothing, light), `texno-bozor`
+HMAC login. The three stores are **pre-baked at build time**: `npm run build:demo` runs `scripts/bake-demo.ts`, which seeds
+under Node, trims the WAL and writes `public/demo/snapshot.tar.gz` (~5.5 MB, gitignored). A first visit downloads it,
+loads it with `loadDataDir` straight into IndexedDB and calls `rebaseSnapshot` (`@dokonim/seed`), which moves every
+timestamp by "now − bake time" so order history ends today and flash sales count down honestly. First visit ≈ 2.5 s
+(was 15–18 s of in-browser seeding), reloads ≈ 1.5 s; `node scripts/measure-first-visit.mjs` measures both. Without the
+asset (plain `vite` dev) the worker falls back to seeding in place. `client.resetDemo()` wipes IndexedDB and reloads the snapshot. Seed stores: `atlas-adras` (clothing, light), `texno-bozor`
 (electronics, dark Volt preset), `choyxona-market` (food). Promo codes: SALOM10, BEPULYETKAZISH, TOY50, TEXNO5,
 MINUS100, CHOY15. Flash sales are relative to now.
 
