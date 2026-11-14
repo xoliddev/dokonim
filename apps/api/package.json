@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "start": "tsx src/main.ts",
-    "migrate": "tsx src/migrate.ts",
-    "seed": "tsx src/seed.ts"
+    "migrate": "tsx src/migrate.ts"
   },
   "dependencies": {
     "@dokonim/core": "*",
@@ -22,6 +23,8 @@
     "fastify": "^5.12.8",
     "jose": "^6.2.17",
     "pg": "^8.23.1",
-    "tsx": "^4.23.15"
+    "tsx": "^4.23.15",
+    "zod": "^4.6.7",
+    "grammy": "^1.46.0"
   }
 }

@@ -241,13 +241,14 @@ export function manageService(s: Ctx) {
       }),
 
     /** Rotating refresh tokens with reuse detection: a reused token revokes its whole family. */
-    'auth.rotateRefresh': async (_a: Actor, i: { token: string }) =>
-      s.tx(null, SYSTEM, async (tx) => {
+    'auth.rotateRefresh': async (_a: Actor, i: { token: string }): Promise<{ token: string; user: UserRow }> => {
+      const r = await s.tx(null, SYSTEM, async (tx) => {
         const [t] = await tx.query<{ id: string; userId: string; familyId: string; expiresAt: string; usedAt: string | null; revokedAt: string | null }>('select * from refresh_tokens where token_hash = $1', [await sha256Hex(i.token)]);
         if (!t) throw new DomainError('UNAUTHENTICATED', 'Unknown refresh token');
         if (t.usedAt || t.revokedAt) {
+          // Revoke the whole family and COMMIT that before failing (throwing here would roll the revocation back).
           await tx.query('update refresh_tokens set revoked_at = $2 where family_id = $1 and revoked_at is null', [t.familyId, s.now().toISOString()]);
-          throw new DomainError('UNAUTHENTICATED', 'Refresh token reuse detected');
+          return { reused: true as const };
         }
         if (Date.parse(t.expiresAt) < s.now().getTime()) throw new DomainError('UNAUTHENTICATED', 'Refresh token expired');
         await tx.query('update refresh_tokens set used_at = $2 where id = $1', [t.id, s.now().toISOString()]);
@@ -257,7 +258,10 @@ export function manageService(s: Ctx) {
         await tx.query('insert into refresh_tokens (id, user_id, family_id, token_hash, expires_at) values ($1,$2,$3,$4,$5)', [uuidv7(), t.userId, t.familyId, await sha256Hex(token), new Date(s.now().getTime() + 30 * 86_400_000).toISOString()]);
         const [user] = await tx.query<UserRow>('select * from users where id = $1', [t.userId]);
         return { token, user: user! };
-      }),
+      });
+      if ('reused' in r) throw new DomainError('UNAUTHENTICATED', 'Refresh token reuse detected');
+      return r;
+    },
 
     // ── Store lifecycle ─────────────────────────────────────────────────────
     'stores.slugAvailable': async (actor: Actor, i: { slug?: string; name?: string }) =>
