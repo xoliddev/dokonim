@@ -388,6 +388,8 @@ export function renderStart(payload: StartPayload, locale: Locale, opts: StartRe
       return { text: tHtml(locale, 'start.product'), buttons: [[openButton(locale, 'btn.openProduct', payload, opts)], [openButton(locale, 'btn.openStore', { kind: 'store', slug: payload.slug }, opts)]] };
     case 'order':
       return { text: tHtml(locale, 'start.order'), buttons: [[openButton(locale, 'btn.openOrder', payload, opts)]] };
+    case 'invite':
+      return { text: tHtml(locale, 'start.manage'), buttons: [[openButton(locale, 'btn.openDashboard', payload, opts)]] };
   }
 }
 

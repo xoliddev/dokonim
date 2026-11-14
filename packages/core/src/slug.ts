@@ -23,7 +23,7 @@ export function checkStoreSlug(slug: string): SlugProblem | null {
   if (slug.length < 3) return 'too_short';
   if (slug.length > 32) return 'too_long';
   // "-p-/-c-/-o-" and a leading "m-" are reserved by the startapp grammar (see startapp.ts).
-  if (!SLUG_RE.test(slug) || slug.includes('--') || /-[pco]-/.test(slug) || slug.startsWith('m-')) return 'format';
+  if (!SLUG_RE.test(slug) || slug.includes('--') || /-[pco]-/.test(slug) || slug.startsWith('m-') || slug.startsWith('i-')) return 'format';
   if (RESERVED_SLUGS.has(slug)) return 'reserved';
   return null;
 }
