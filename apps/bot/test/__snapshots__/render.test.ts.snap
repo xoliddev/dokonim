@@ -1,0 +1,1087 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderNotification — every topic × locale > cancelled buyer [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open order",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "❌ <b>Order #1042 cancelled</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+The shop cancelled the order.
+<b>Reason:</b> Tugadi &lt;b&gt;",
+}
+`;
+
+exports[`renderNotification — every topic × locale > cancelled buyer [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть заказ",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "❌ <b>Заказ №1042 отменён</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Магазин отменил заказ.
+<b>Причина:</b> Tugadi &lt;b&gt;",
+}
+`;
+
+exports[`renderNotification — every topic × locale > cancelled buyer [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Buyurtmani ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "❌ <b>Buyurtma #1042 bekor qilindi</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Doʻkon buyurtmani bekor qildi.
+<b>Sabab:</b> Tugadi &lt;b&gt;",
+}
+`;
+
+exports[`renderNotification — every topic × locale > cancelled owner [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "❌ <b>Order #1042 cancelled</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+The buyer cancelled it.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > cancelled owner [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "❌ <b>Заказ №1042 отменён</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Покупатель отменил заказ.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > cancelled owner [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "❌ <b>Buyurtma #1042 bekor qilindi</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Xaridor bekor qildi.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > order.paid buyer [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open order",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "✅ <b>Payment received</b> · #1042 · Dilnoza &lt;Atelier&gt; &amp; Co
+<b>1 250 000 UZS</b> · Payme
+
+The shop will start preparing your order.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > order.paid buyer [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть заказ",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "✅ <b>Оплата получена</b> · №1042 · Dilnoza &lt;Atelier&gt; &amp; Co
+<b>1 250 000 сум</b> · Payme
+
+Магазин начнёт готовить ваш заказ.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > order.paid buyer [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Buyurtmani ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "✅ <b>Toʻlov qabul qilindi</b> · #1042 · Dilnoza &lt;Atelier&gt; &amp; Co
+<b>1 250 000 so‘m</b> · Payme
+
+Doʻkon buyurtmangizni tayyorlashni boshlaydi.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > order.paid owner [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "callback": "o:confirm:0b9f3c1e-2d4a-4f6b-8c7d-9e0a1b2c3d4e",
+        "text": "✅ Confirm",
+      },
+      {
+        "text": "📞 Call",
+        "url": "https://t.me/+998901234567",
+      },
+    ],
+    [
+      {
+        "text": "Open",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "💰 <b>Payment received</b> · #1042 · Dilnoza &lt;Atelier&gt; &amp; Co
+<b>1 250 000 UZS</b> · Payme
+
+Confirm the order and start preparing it.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > order.paid owner [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "callback": "o:confirm:0b9f3c1e-2d4a-4f6b-8c7d-9e0a1b2c3d4e",
+        "text": "✅ Подтвердить",
+      },
+      {
+        "text": "📞 Позвонить",
+        "url": "https://t.me/+998901234567",
+      },
+    ],
+    [
+      {
+        "text": "Открыть",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "💰 <b>Оплата получена</b> · №1042 · Dilnoza &lt;Atelier&gt; &amp; Co
+<b>1 250 000 сум</b> · Payme
+
+Подтвердите заказ и начните сборку.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > order.paid owner [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "callback": "o:confirm:0b9f3c1e-2d4a-4f6b-8c7d-9e0a1b2c3d4e",
+        "text": "✅ Tasdiqlash",
+      },
+      {
+        "text": "📞 Qoʻngʻiroq",
+        "url": "https://t.me/+998901234567",
+      },
+    ],
+    [
+      {
+        "text": "Ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "💰 <b>Toʻlov qabul qilindi</b> · #1042 · Dilnoza &lt;Atelier&gt; &amp; Co
+<b>1 250 000 so‘m</b> · Payme
+
+Buyurtmani tasdiqlang va tayyorlashni boshlang.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > order.placed buyer [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open order",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "✅ <b>Order #1042 received</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+
+• Atlas koʻylak (M / qizil) × 1
+• &lt;script&gt;alert(1)&lt;/script&gt; × 2
+
+<b>Total:</b> <b>1 250 000 UZS</b>
+<b>Payment:</b> Payme
+<b>Delivery:</b> 15 November – 17 November
+
+Open the order to finish paying.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > order.placed buyer [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть заказ",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "✅ <b>Заказ №1042 принят</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+
+• Atlas koʻylak (M / qizil) × 1
+• &lt;script&gt;alert(1)&lt;/script&gt; × 2
+
+<b>Итого:</b> <b>1 250 000 сум</b>
+<b>Оплата:</b> Payme
+<b>Доставка:</b> 15 ноября – 17 ноября
+
+Откройте заказ и завершите оплату.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > order.placed buyer [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Buyurtmani ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "✅ <b>Buyurtma #1042 qabul qilindi</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+
+• Atlas koʻylak (M / qizil) × 1
+• &lt;script&gt;alert(1)&lt;/script&gt; × 2
+
+<b>Jami:</b> <b>1 250 000 so‘m</b>
+<b>Toʻlov:</b> Payme
+<b>Yetkazish:</b> 15-noyabr – 17-noyabr
+
+Buyurtmani oching va toʻlovni yakunlang.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > order.placed owner [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "callback": "o:confirm:0b9f3c1e-2d4a-4f6b-8c7d-9e0a1b2c3d4e",
+        "text": "✅ Confirm",
+      },
+      {
+        "text": "📞 Call",
+        "url": "https://t.me/+998901234567",
+      },
+    ],
+    [
+      {
+        "text": "Open",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "🛒 <b>New order #1042</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+
+• Atlas koʻylak (M / qizil) × 1
+• &lt;script&gt;alert(1)&lt;/script&gt; × 2
+
+<b>Total:</b> <b>1 250 000 UZS</b>
+<b>Buyer:</b> &lt;script&gt;Sardor&lt;/script&gt;, +998 90 123-45-67
+<b>Payment:</b> Payme
+<b>Delivery:</b> 15 November – 17 November",
+}
+`;
+
+exports[`renderNotification — every topic × locale > order.placed owner [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "callback": "o:confirm:0b9f3c1e-2d4a-4f6b-8c7d-9e0a1b2c3d4e",
+        "text": "✅ Подтвердить",
+      },
+      {
+        "text": "📞 Позвонить",
+        "url": "https://t.me/+998901234567",
+      },
+    ],
+    [
+      {
+        "text": "Открыть",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "🛒 <b>Новый заказ №1042</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+
+• Atlas koʻylak (M / qizil) × 1
+• &lt;script&gt;alert(1)&lt;/script&gt; × 2
+
+<b>Итого:</b> <b>1 250 000 сум</b>
+<b>Покупатель:</b> &lt;script&gt;Sardor&lt;/script&gt;, +998 90 123-45-67
+<b>Оплата:</b> Payme
+<b>Доставка:</b> 15 ноября – 17 ноября",
+}
+`;
+
+exports[`renderNotification — every topic × locale > order.placed owner [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "callback": "o:confirm:0b9f3c1e-2d4a-4f6b-8c7d-9e0a1b2c3d4e",
+        "text": "✅ Tasdiqlash",
+      },
+      {
+        "text": "📞 Qoʻngʻiroq",
+        "url": "https://t.me/+998901234567",
+      },
+    ],
+    [
+      {
+        "text": "Ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "🛒 <b>Yangi buyurtma #1042</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+
+• Atlas koʻylak (M / qizil) × 1
+• &lt;script&gt;alert(1)&lt;/script&gt; × 2
+
+<b>Jami:</b> <b>1 250 000 so‘m</b>
+<b>Xaridor:</b> &lt;script&gt;Sardor&lt;/script&gt;, +998 90 123-45-67
+<b>Toʻlov:</b> Payme
+<b>Yetkazish:</b> 15-noyabr – 17-noyabr",
+}
+`;
+
+exports[`renderNotification — every topic × locale > question.answered [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open product",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-p-AB12",
+      },
+    ],
+  ],
+  "text": "💬 <b>The shop answered your question</b> · Dilnoza
+<b>Atlas</b>
+<i>Razmer bormi?</i>
+<blockquote>Ha, M va L</blockquote>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > question.answered [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть товар",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-p-AB12",
+      },
+    ],
+  ],
+  "text": "💬 <b>Магазин ответил на ваш вопрос</b> · Dilnoza
+<b>Atlas</b>
+<i>Razmer bormi?</i>
+<blockquote>Ha, M va L</blockquote>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > question.answered [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Mahsulotni ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-p-AB12",
+      },
+    ],
+  ],
+  "text": "💬 <b>Doʻkon savolingizga javob berdi</b> · Dilnoza
+<b>Atlas</b>
+<i>Razmer bormi?</i>
+<blockquote>Ha, M va L</blockquote>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > question.created [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Reply",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "❓ <b>New question</b> · Dilnoza
+<b>Atlas</b>
+<blockquote>Razmer bormi?</blockquote>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > question.created [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Ответить",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "❓ <b>Новый вопрос</b> · Dilnoza
+<b>Atlas</b>
+<blockquote>Razmer bormi?</blockquote>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > question.created [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Javob berish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "❓ <b>Yangi savol</b> · Dilnoza
+<b>Atlas</b>
+<blockquote>Razmer bormi?</blockquote>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > review.created [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Reply",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "⭐ <b>New review</b> · Dilnoza
+<b>Atlas</b>
+★★★★☆
+<blockquote>Zoʻr! &lt;script&gt;x&lt;/script&gt;</blockquote>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > review.created [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Ответить",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "⭐ <b>Новый отзыв</b> · Dilnoza
+<b>Atlas</b>
+★★★★☆
+<blockquote>Zoʻr! &lt;script&gt;x&lt;/script&gt;</blockquote>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > review.created [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Javob berish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "⭐ <b>Yangi sharh</b> · Dilnoza
+<b>Atlas</b>
+★★★★☆
+<blockquote>Zoʻr! &lt;script&gt;x&lt;/script&gt;</blockquote>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > staff.joined [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open team",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "👤 <b>Kamola &lt;3</b> joined the team · Dilnoza
+Role: Order operator",
+}
+`;
+
+exports[`renderNotification — every topic × locale > staff.joined [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть команду",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "👤 <b>Kamola &lt;3</b> вступил(а) в команду · Dilnoza
+Роль: Оператор заказов",
+}
+`;
+
+exports[`renderNotification — every topic × locale > staff.joined [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Jamoani ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "👤 <b>Kamola &lt;3</b> jamoaga qoʻshildi · Dilnoza
+Rol: Buyurtmalar operatori",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status completed [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open order",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "🎉 <b>Order #1042 completed</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Thanks for your purchase!",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status completed [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть заказ",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "🎉 <b>Заказ №1042 завершён</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Спасибо за покупку!",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status completed [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Buyurtmani ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "🎉 <b>Buyurtma #1042 yakunlandi</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Xaridingiz uchun rahmat!",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status confirmed [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open order",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "👍 <b>Order #1042 confirmed</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+The shop is preparing it.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status confirmed [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть заказ",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "👍 <b>Заказ №1042 подтверждён</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Магазин готовит его.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status confirmed [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Buyurtmani ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "👍 <b>Buyurtma #1042 tasdiqlandi</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Doʻkon uni tayyorlamoqda.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status delivered [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "⭐ Leave a review",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "✅ <b>Order #1042 delivered</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+How was it? Leave a review — it helps other buyers.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status delivered [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "⭐ Оставить отзыв",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "✅ <b>Заказ №1042 доставлен</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Как вам покупка? Оставьте отзыв — он поможет другим покупателям.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status delivered [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "⭐ Sharh qoldirish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "✅ <b>Buyurtma #1042 topshirildi</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Xarid yoqdimi? Sharh qoldiring — boshqa xaridorlarga yordam beradi.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status packing [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open order",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "📦 <b>Order #1042 is being packed</b> · Dilnoza &lt;Atelier&gt; &amp; Co",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status packing [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть заказ",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "📦 <b>Заказ №1042 собирается</b> · Dilnoza &lt;Atelier&gt; &amp; Co",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status packing [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Buyurtmani ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "📦 <b>Buyurtma #1042 yigʻilmoqda</b> · Dilnoza &lt;Atelier&gt; &amp; Co",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status ready [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open order",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "🏬 <b>Order #1042 is ready for pickup</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Pickup code: <b>482913</b>
+Show it at the shop.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status ready [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть заказ",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "🏬 <b>Заказ №1042 готов к выдаче</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Код получения: <b>482913</b>
+Назовите его в магазине.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status ready [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Buyurtmani ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "🏬 <b>Buyurtma #1042 olib ketishga tayyor</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Olish kodi: <b>482913</b>
+Kodni doʻkonda ayting.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status return_requested owner [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "📞 Call",
+        "url": "https://t.me/+998901234567",
+      },
+    ],
+    [
+      {
+        "text": "Open",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "ℹ️ <b>Order #1042</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Delivered → <b>Return requested</b>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status return_requested owner [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "📞 Позвонить",
+        "url": "https://t.me/+998901234567",
+      },
+    ],
+    [
+      {
+        "text": "Открыть",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "ℹ️ <b>Заказ №1042</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Вручён → <b>Запрошен возврат</b>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status return_requested owner [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "📞 Qoʻngʻiroq",
+        "url": "https://t.me/+998901234567",
+      },
+    ],
+    [
+      {
+        "text": "Ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "ℹ️ <b>Buyurtma #1042</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Topshirilgan → <b>Qaytarish soʻralgan</b>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status returned [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open order",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "↩️ <b>Order #1042 returned</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+The money goes back to the way you paid.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status returned [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть заказ",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "↩️ <b>Заказ №1042 возвращён</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Деньги вернутся тем же способом оплаты.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status returned [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Buyurtmani ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "↩️ <b>Buyurtma #1042 qaytarildi</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+Pul toʻlov qilingan usulga qaytariladi.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status shipped [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open order",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "🚚 <b>Order #1042 is on its way</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+<b>Delivery:</b> 15 November – 17 November
+<b>Tracking number:</b> <code>UZ&lt;123&gt;</code>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status shipped [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть заказ",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "🚚 <b>Заказ №1042 отправлен</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+<b>Доставка:</b> 15 ноября – 17 ноября
+<b>Трек-номер:</b> <code>UZ&lt;123&gt;</code>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > status shipped [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Buyurtmani ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier-o-K7Q2M9",
+      },
+    ],
+  ],
+  "text": "🚚 <b>Buyurtma #1042 joʻnatildi</b> · Dilnoza &lt;Atelier&gt; &amp; Co
+<b>Yetkazish:</b> 15-noyabr – 17-noyabr
+<b>Trek raqami:</b> <code>UZ&lt;123&gt;</code>",
+}
+`;
+
+exports[`renderNotification — every topic × locale > stock.low [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Open products",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "⚠️ <b>Running low</b> · Dilnoza
+Atlas (M) — 2 left",
+}
+`;
+
+exports[`renderNotification — every topic × locale > stock.low [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Открыть товары",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "⚠️ <b>Заканчивается</b> · Dilnoza
+Atlas (M) — осталось 2 шт.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > stock.low [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Mahsulotlarni ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "⚠️ <b>Kam qoldi</b> · Dilnoza
+Atlas (M) — 2 dona qoldi",
+}
+`;
+
+exports[`renderNotification — every topic × locale > store.created [en] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Share store",
+        "url": "https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fdokonim_bot%2Fshop%3Fstartapp%3Ddilnoza-atelier&text=Dilnoza%20%E2%80%94%20visit%20my%20store!",
+      },
+    ],
+    [
+      {
+        "text": "Open dashboard",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "🎉 <b>Dilnoza is live!</b>
+
+Store link:
+https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier
+
+Send it to customers or pin it in your channel.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > store.created [ru] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Поделиться магазином",
+        "url": "https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fdokonim_bot%2Fshop%3Fstartapp%3Ddilnoza-atelier&text=%C2%ABDilnoza%C2%BB%20%E2%80%94%20%D0%B7%D0%B0%D1%85%D0%BE%D0%B4%D0%B8%D1%82%D0%B5%20%D0%B2%20%D0%BC%D0%BE%D0%B9%20%D0%BC%D0%B0%D0%B3%D0%B0%D0%B7%D0%B8%D0%BD!",
+      },
+    ],
+    [
+      {
+        "text": "Открыть управление",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "🎉 <b>Магазин «Dilnoza» открыт!</b>
+
+Ссылка на магазин:
+https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier
+
+Отправьте её покупателям или закрепите в своём канале.",
+}
+`;
+
+exports[`renderNotification — every topic × locale > store.created [uz] 1`] = `
+{
+  "buttons": [
+    [
+      {
+        "text": "Doʻkonni ulashish",
+        "url": "https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fdokonim_bot%2Fshop%3Fstartapp%3Ddilnoza-atelier&text=%C2%ABDilnoza%C2%BB%20%E2%80%94%20do%CA%BBkonimga%20marhamat!",
+      },
+    ],
+    [
+      {
+        "text": "Boshqaruvni ochish",
+        "url": "https://t.me/dokonim_bot/shop?startapp=m-dilnoza-atelier",
+      },
+    ],
+  ],
+  "text": "🎉 <b>«Dilnoza» doʻkoni ochildi!</b>
+
+Doʻkon havolasi:
+https://t.me/dokonim_bot/shop?startapp=dilnoza-atelier
+
+Havolani mijozlarga yuboring yoki kanalingizga joylang.",
+}
+`;
