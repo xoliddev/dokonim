@@ -1,0 +1,70 @@
+name: Pages
+
+# Publishes the browser-only demo (LocalApi: PGlite in a Web Worker, no backend) to GitHub Pages at
+# https://<owner>.github.io/dokonim/. `vite build --mode demo` sets base /dokonim/, so the repository must be named
+# `dokonim`. One-time setup: Settings → Pages → Source: "GitHub Actions".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a newer push queues behind a running deploy instead of cancelling it mid-publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build demo
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # bakes public/demo/snapshot.tar.gz (gitignored) with PGlite under Node, then `vite build --mode demo`
+      - run: npm run build:demo -w @dokonim/miniapp
+
+      # The router is hash-based, so every real route is /dokonim/#/…; 404.html only catches mistyped paths
+      # (/dokonim/foo/bar) and boots the app there. Its one relative URL (./favicon.svg) is made absolute so it
+      # still resolves from a nested path; the hashed /dokonim/assets/… URLs are already absolute.
+      - name: Add 404.html and .nojekyll
+        working-directory: apps/miniapp/dist
+        run: |
+          test -f demo/snapshot.tar.gz
+          sed 's#href="\./#href="/dokonim/#g' index.html > 404.html
+          touch .nojekyll
+          ls -la
+
+      - uses: actions/configure-pages@v6
+
+      # since v4 dotfiles are left out of the artifact by default; keep .nojekyll (harmless with an Actions deploy,
+      # which never runs Jekyll, but it keeps the site correct if Pages is ever switched to branch publishing)
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: apps/miniapp/dist
+          include-hidden-files: true
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
