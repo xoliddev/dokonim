@@ -41,7 +41,7 @@ export function RouterView({ routes }: { routes: RouteDef[] }) {
   return (
     <div className="screen-scroll" ref={scroller} data-surface={match?.route.surface ?? 'shell'}>
       <AnimatePresence mode="popLayout" initial={false}>
-        <PageTransition key={key} direction={loc.direction} className="screen">
+        <PageTransition key={key} path={key} direction={loc.direction} className="screen">
           <Suspense fallback={<ScreenSkeleton />}>
             <Screen params={match?.params ?? {}} query={loc.query} />
           </Suspense>

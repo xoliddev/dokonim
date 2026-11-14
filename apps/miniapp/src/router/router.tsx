@@ -122,19 +122,43 @@ export function matchPath(pattern: string, path: string): Record<string, string>
   return xs.length === ps.length ? params : null;
 }
 
-const score = (pattern: string) => pattern.split('/').filter(Boolean).reduce((s, seg) => s + (seg === '*' ? 1 : seg.startsWith(':') ? 2 : 3), 0);
+/**
+ * Specificity of a pattern for one concrete path: a rank per *path* segment (static 3, param 2, splat-covered 1),
+ * plus whether the pattern is exact (no splat). Patterns compare lexicographically, and on a tie the exact pattern
+ * wins, so `/s/:slug` beats `/s/:slug/*` for `/s/x` even though the splat matches it with an empty rest.
+ */
+function rank(pattern: string, path: string): { segs: number[]; exact: boolean } {
+  const ps = pattern.split('/').filter(Boolean);
+  const n = path.split('/').filter(Boolean).length;
+  const segs: number[] = [];
+  for (let i = 0; i < n; i++) {
+    const p = ps[i];
+    if (p === undefined || p === '*') segs.push(1);
+    else segs.push(p.startsWith(':') ? 2 : 3);
+  }
+  return { segs, exact: !ps.includes('*') };
+}
 
-/** Best match: the most specific pattern wins (static > param > splat), regardless of array order. */
+/** > 0 when `a` is more specific than `b`. */
+function compareRank(a: ReturnType<typeof rank>, b: ReturnType<typeof rank>): number {
+  for (let i = 0; i < Math.max(a.segs.length, b.segs.length); i++) {
+    const d = (a.segs[i] ?? 0) - (b.segs[i] ?? 0);
+    if (d) return d;
+  }
+  return Number(a.exact) - Number(b.exact);
+}
+
+/** Best match: the most specific pattern wins (static > param > splat, exact > splat), regardless of array order. */
 export function matchRoute(routes: RouteDef[], path: string): Match | null {
   let best: Match | null = null;
-  let bestScore = -1;
+  let bestRank: ReturnType<typeof rank> | null = null;
   for (const route of routes) {
     const params = matchPath(route.path, path);
     if (!params) continue;
-    const s = score(route.path);
-    if (s > bestScore) {
+    const r = rank(route.path, path);
+    if (!bestRank || compareRank(r, bestRank) > 0) {
       best = { route, params };
-      bestScore = s;
+      bestRank = r;
     }
   }
   return best;

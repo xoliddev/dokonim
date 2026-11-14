@@ -33,6 +33,30 @@ describe('router', () => {
     expect(matchRoute(routes, '/m/a')).toBeNull();
   });
 
+  it('ranks an exact match above a splat that also matches with an empty rest', () => {
+    const routes: RouteDef[] = [
+      { path: '/s/:slug/*', component: C },
+      { path: '/s/:slug', component: C },
+      { path: '/s/:slug/c/*', component: C },
+      { path: '/s/:slug/:page', component: C },
+    ];
+    expect(matchRoute(routes, '/s/a')?.route.path).toBe('/s/:slug');
+    expect(matchRoute(routes, '/s/a/c')?.route.path).toBe('/s/:slug/c/*');
+    expect(matchRoute(routes, '/s/a/c/x/y')?.route.path).toBe('/s/:slug/c/*');
+    expect(matchRoute(routes, '/s/a/x/y')?.route.path).toBe('/s/:slug/*');
+    expect(matchRoute([...routes].reverse(), '/s/a')?.route.path).toBe('/s/:slug');
+  });
+
+  it('real route tables: home screens are not shadowed by the not-found splats', () => {
+    expect(matchRoute(storeRoutes, '/s/atlas-adras')?.route.path).toBe('/s/:slug');
+    expect(matchRoute(storeRoutes, '/s/atlas-adras/c/a/b/c')?.route.path).toBe('/s/:slug/c/*');
+    expect(matchRoute(storeRoutes, '/s/atlas-adras/p/42')?.route.path).toBe('/s/:slug/p/:productId');
+    expect(matchRoute(storeRoutes, '/s/atlas-adras/nope/deep')?.route.path).toBe('/s/:slug/*');
+    expect(matchRoute(sellerRoutes, '/m/atlas-adras')?.route.path).toBe('/m/:slug');
+    expect(matchRoute(sellerRoutes, '/m/atlas-adras/products/new')?.route.path).toBe('/m/:slug/products/new');
+    expect(matchRoute(sellerRoutes, '/m/atlas-adras/a/b/c/d')?.route.path).toBe('/m/:slug/*');
+  });
+
   it('navigate updates the hash, index and direction', () => {
     navigate('/s/atlas');
     navigate('/s/atlas/cart');
@@ -129,5 +153,19 @@ describe('Odometer', () => {
     const el = screen.getByRole('text');
     expect(el.getAttribute('aria-label')).toBe('412 000 so‘m/oy');
     expect(el.querySelectorAll('.odo-slot')).toHaveLength(6);
+  });
+});
+
+describe('UI money', () => {
+  it('uses a regular no-break space on screen, never U+202F', async () => {
+    const { uiI18n } = await import('../src/i18n');
+    for (const lc of ['uz', 'ru', 'en'] as const) {
+      const i = uiI18n(lc);
+      const s = i.money(390_000_000);
+      expect(s).not.toMatch(/ /);
+      expect(s).toMatch(/ /);
+      expect(i.t('store.perMonth', { amount: s })).not.toMatch(/ /);
+      expect(i.number(1_250_000)).not.toMatch(/ /);
+    }
   });
 });

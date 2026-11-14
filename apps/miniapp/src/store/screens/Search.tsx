@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import type { RouteProps } from '../../router/router';
 import { navigate } from '../../router/router';
 import { useCurrentStore } from '../../shell/session';
@@ -86,7 +86,7 @@ export default function Search({ params, query }: RouteProps) {
             onChange={(e) => setText(e.target.value)}
             placeholder={store.data ? t('store.searchIn', { store: l(store.data.store.name) }) : t('store.searchPlaceholder')}
             aria-label={t('common.search')}
-            prefix={(<Icon name="search" size={20} />) as unknown as string}
+            leading={<Icon name="search" size={20} />}
             suffix={
               text ? (
                 <button type="button" className="st-search-clear" aria-label={t('common.reset')} onClick={() => (setText(''), commit(''), input.current?.focus())}>

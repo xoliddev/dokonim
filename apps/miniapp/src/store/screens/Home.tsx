@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import type { L10n } from '@dokonim/core';
 import { useQuery } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import type { RouteProps } from '../../router/router';
 import { navigate } from '../../router/router';
 import { useCurrentStore } from '../../shell/session';

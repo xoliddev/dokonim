@@ -9,14 +9,15 @@ interface Common {
   label?: ReactNode;
   hint?: ReactNode;
   error?: ReactNode;
-  prefix?: ReactNode;
+  /** Adornment before the control (named `leading` because `prefix` is an HTML attribute with a string type). */
+  leading?: ReactNode;
   suffix?: ReactNode;
 }
 
 export type InputProps = Common & ((InputHTMLAttributes<HTMLInputElement> & { multiline?: false }) | (TextareaHTMLAttributes<HTMLTextAreaElement> & { multiline: true }));
 
 export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(function Input(props, ref) {
-  const { label, hint, error, prefix, suffix, className, id: idProp, multiline, ...rest } = props as Common & { className?: string; id?: string; multiline?: boolean } & Record<string, unknown>;
+  const { label, hint, error, leading, suffix, className, id: idProp, multiline, ...rest } = props as Common & { className?: string; id?: string; multiline?: boolean } & Record<string, unknown>;
   const auto = useId();
   const id = idProp ?? auto;
   const describedBy = [hint ? `${id}-hint` : '', error ? `${id}-err` : ''].filter(Boolean).join(' ') || undefined;
@@ -33,7 +34,7 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputPro
         </label>
       )}
       <div className="field-box">
-        {prefix && <span className="field-affix">{prefix}</span>}
+        {leading && <span className="field-affix">{leading}</span>}
         {field}
         {suffix && <span className="field-affix">{suffix}</span>}
       </div>

@@ -5,7 +5,7 @@
  */
 import { memo, useRef, useState } from 'react';
 import { ApiError } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { flyToCart, shake } from '../../motion';
 import { announce, Icon, toast } from '../../ui';
 import { qtyInCart, useCart, useCartActions, useWishlist } from '../lib/data';

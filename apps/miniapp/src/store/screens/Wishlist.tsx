@@ -1,5 +1,5 @@
 /** Favourites: saved products as a grid, with the price drop since saving called out. */
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { Reveal, staggerDelay } from '../../motion';
 import { navigate, type RouteProps } from '../../router/router';
 import { Button, EmptyState } from '../../ui';

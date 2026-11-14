@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { useQuery } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { Button, Chip, Input, Sheet } from '../../ui';
 import { clearFilters, toggleOpt, toListing, type Filters } from '../lib/filters';
 import type { Facets } from '../lib/types';
@@ -74,8 +74,8 @@ function FilterBody({ value, draft, setDraft, facets: fd }: Props & { draft: Fil
       <section className="st-fsec">
         <h3>{t('store.filterPrice')}</h3>
         <div className="st-price-row">
-          <Input inputMode="numeric" value={min} onChange={(e) => setMin(e.target.value.replace(/\D/g, ''))} prefix={t('store.priceMin')} placeholder={range ? String(Math.floor(range.min / 100)) : ''} aria-label={t('store.priceMin')} />
-          <Input inputMode="numeric" value={max} onChange={(e) => setMax(e.target.value.replace(/\D/g, ''))} prefix={t('store.priceMax')} placeholder={range ? String(Math.ceil(range.max / 100)) : ''} aria-label={t('store.priceMax')} />
+          <Input inputMode="numeric" value={min} onChange={(e) => setMin(e.target.value.replace(/\D/g, ''))} leading={t('store.priceMin')} placeholder={range ? String(Math.floor(range.min / 100)) : ''} aria-label={t('store.priceMin')} />
+          <Input inputMode="numeric" value={max} onChange={(e) => setMax(e.target.value.replace(/\D/g, ''))} leading={t('store.priceMax')} placeholder={range ? String(Math.ceil(range.max / 100)) : ''} aria-label={t('store.priceMax')} />
         </div>
         {range && range.max > range.min && <p className="st-fhint muted">{`${money(range.min)} — ${money(range.max)}`}</p>}
       </section>

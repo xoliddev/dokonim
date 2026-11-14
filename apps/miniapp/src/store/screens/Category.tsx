@@ -3,7 +3,7 @@
  * level slides in on the shared X axis via the router), and the whole subtree's products below.
  */
 import { useQuery } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import type { RouteProps } from '../../router/router';
 import { Link, navigate } from '../../router/router';
 import { Button, Chip, EmptyState, Icon, Skeleton } from '../../ui';

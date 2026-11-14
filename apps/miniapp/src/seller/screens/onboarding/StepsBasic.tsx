@@ -38,7 +38,7 @@ export function StepName({ d, set, check }: { d: WizardDraft; set: Set; check: R
       <Input label={t('seller.wzName')} placeholder={t('seller.wzNamePh')} value={d.name} maxLength={60} autoFocus error={nameErr} onChange={(e) => set((x) => withName(x, e.target.value))} />
       <Input
         label={t('seller.wzSlug')}
-        prefix="startapp="
+        leading="startapp="
         value={d.slug}
         inputMode="url"
         autoCapitalize="off"

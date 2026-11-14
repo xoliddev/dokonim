@@ -6,7 +6,7 @@
 import { useRef, useState } from 'react';
 import type { L10n } from '@dokonim/core';
 import { ApiError, useQuery } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { DismissablePage, flyToCart, InstallmentSplit, MorphContent, shake } from '../../motion';
 import { back, navigate, type RouteProps } from '../../router/router';
 import { useCurrentStore } from '../../shell/session';

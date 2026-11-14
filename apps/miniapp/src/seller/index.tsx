@@ -45,8 +45,6 @@ export const sellerRoutes: RouteDef[] = [
   r('/settings/shipping', Shipping),
   r('/settings/store', StoreSettings),
   r('/settings/staff', Staff),
-  // catch-alls: explicit depths, because a `/*` splat also matches the bare `/m/:slug` and would outrank it
-  r('/:a', NotFound),
-  r('/:a/:b', NotFound),
-  r('/:a/:b/:c', NotFound),
+  // last resort: the router ranks exact matches above a splat, so this never shadows `/m/:slug` itself
+  r('/*', NotFound),
 ];

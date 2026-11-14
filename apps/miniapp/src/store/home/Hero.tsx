@@ -5,7 +5,7 @@
 import { useEffect, useRef } from 'react';
 import { m } from 'motion/react';
 import type { L10n } from '@dokonim/core';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { spring, useMotionTier } from '../../motion';
 import { navigate } from '../../router/router';
 import { Button, Icon } from '../../ui';

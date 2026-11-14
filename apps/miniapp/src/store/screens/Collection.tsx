@@ -1,7 +1,7 @@
 /** Collection listing: the collection's title and description, then its products with filters. */
 import { useQuery } from '../../api';
 import type { L10n } from '@dokonim/core';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import type { RouteProps } from '../../router/router';
 import { EmptyState } from '../../ui';
 import { StoreScreen, TopActions, TopBar } from '../components/Chrome';

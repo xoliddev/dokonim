@@ -3,7 +3,7 @@
  * with real timestamps from order events; the current step pulses, terminal states replace the tail.
  */
 import type { MessageKey } from '../../i18n';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { Icon } from '../../ui';
 import type { OrderEventRow } from '../lib/types';
 

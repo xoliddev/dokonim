@@ -1,5 +1,5 @@
 /** Business-type templates used by the onboarding wizard (§6.4 step 2). */
-import type { BusinessType, L10n } from '@dokonim/core';
+import { UZ_REGIONS, type BusinessType, type L10n } from '@dokonim/core';
 
 export interface CategorySeed {
   name: L10n;
@@ -60,7 +60,8 @@ export const SHIPPING_TEMPLATE = {
   ],
   zones: [
     { key: 'tashkent', name: 'Toshkent', regions: ['UZ-TK'] },
-    { key: 'uzbekistan', name: 'Oʻzbekiston', regions: [] as string[] },
+    // every region but Tashkent city, listed explicitly so the seller sees "13 regions" and can edit the zone
+    { key: 'uzbekistan', name: 'Oʻzbekiston', regions: UZ_REGIONS.map((r) => r.code).filter((c) => c !== 'UZ-TK') },
   ],
   rates: [
     { zone: 'tashkent', method: 'courier', calc: 'free_over' as const, amount: 2_500_000, freeOver: 100_000_000, min: 0, max: 1 },

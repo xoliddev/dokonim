@@ -5,7 +5,7 @@
  */
 import { useEffect, type ReactNode } from 'react';
 import { m } from 'motion/react';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { ease, useMotionTier } from '../../motion';
 import { haptic } from '../../telegram/shim';
 

@@ -6,7 +6,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ApiError, invalidate, useApi, useQuery } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { shake } from '../../motion';
 import { navigate, type RouteProps } from '../../router/router';
 import { haptic, useMainButton } from '../../telegram/shim';

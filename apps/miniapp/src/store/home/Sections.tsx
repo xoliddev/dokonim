@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react';
 import type { L10n } from '@dokonim/core';
 import { useQuery } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { Reveal, staggerDelay } from '../../motion';
 import { navigate } from '../../router/router';
 import { Icon, Skeleton } from '../../ui';

@@ -28,12 +28,31 @@ export function setStoreTimezone(tz: string | null | undefined) {
   i18nStore.set((s) => (s.tz === (tz || 'Asia/Tashkent') ? s : { ...s, tz: tz || 'Asia/Tashkent' }));
 }
 
+/**
+ * The shared formatters group digits with U+202F (narrow no-break space), which is right for Telegram messages and
+ * CSV but ~0.13em wide in the display face, so with tight tracking prices read as "3900000UZS". On screen every
+ * money/number string (and every message that interpolates one) uses a regular no-break space instead.
+ */
+const NNBSP = / /g;
+export const uiSpaces = (s: string) => s.replace(NNBSP, ' ');
+
+export function uiI18n(locale: Locale, tz?: string): I18n {
+  const i = createI18n(locale, tz ? { tz } : undefined);
+  return {
+    ...i,
+    t: ((key: MessageKey, params?: Record<string, string | number>) => uiSpaces(i.t(key, params))) as I18n['t'],
+    money: (minor, currency) => uiSpaces(i.money(minor, currency)),
+    number: (n) => uiSpaces(i.number(n)),
+    compact: (major) => uiSpaces(i.compact(major)),
+  };
+}
+
 export function useI18n(): I18n {
   const { locale, tz } = useStore(i18nStore);
-  return useMemo(() => createI18n(locale, { tz }), [locale, tz]);
+  return useMemo(() => uiI18n(locale, tz), [locale, tz]);
 }
 
 /** Non-hook access (event handlers, toasts outside React). */
-export const t = (key: MessageKey, params?: Record<string, string | number>) => createI18n(i18nStore.get().locale).t(key, params);
+export const t = (key: MessageKey, params?: Record<string, string | number>) => uiI18n(i18nStore.get().locale).t(key, params);
 
 export type { MessageKey };

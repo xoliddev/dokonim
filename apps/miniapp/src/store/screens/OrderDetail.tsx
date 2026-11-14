@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import type { L10n } from '@dokonim/core';
 import { ApiError, invalidate, useApi, useQuery } from '../../api';
 import type { MessageKey } from '../../i18n';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { navigate, type RouteProps } from '../../router/router';
 import { tg, useMainButton } from '../../telegram/shim';
 import { Button, EmptyState, Icon, Skeleton, toast } from '../../ui';

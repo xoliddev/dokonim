@@ -1,7 +1,7 @@
 /** My orders: status, number, date, total and a strip of item thumbnails; tap to track. */
 import { useQuery } from '../../api';
 import type { MessageKey } from '../../i18n';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { Reveal, staggerDelay } from '../../motion';
 import { navigate, type RouteProps } from '../../router/router';
 import { Button, EmptyState, Icon, Skeleton } from '../../ui';

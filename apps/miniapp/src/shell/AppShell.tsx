@@ -49,7 +49,15 @@ export function AppShell({ routes }: { routes: RouteDef[] }) {
   return (
     <div className="app-viewport" data-store="">
       {chrome && <TelegramHeader title={title} subtitle={t('common.telegramBot')} />}
-      <main className="app-main">{ready ? <RouterView routes={routes} /> : <BootScreen />}</main>
+      {/*
+        The overlay layer (sheets, stories) lives inside <main>, i.e. between the faux header and the MainButton bar,
+        because that is the Mini App's real viewport: in Telegram both bars are native and nothing in the web view can
+        cover them. So a sheet's scrim never hides the MainButton, and the sheet sits right above it.
+      */}
+      <main className="app-main">
+        {ready ? <RouterView routes={routes} /> : <BootScreen />}
+        <div id="overlay-root" className="overlay-root" />
+      </main>
       {ready && (
         <>
           <StoreSync />
@@ -57,7 +65,6 @@ export function AppShell({ routes }: { routes: RouteDef[] }) {
         </>
       )}
       {chrome && <MainButtonBar />}
-      <div id="overlay-root" className="overlay-root" />
       <ToastHost />
       <LiveRegion />
     </div>

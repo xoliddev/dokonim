@@ -1,7 +1,7 @@
 /** PDP blocks: rich-text description, specs, delivery promise, price header. */
 import { fromMarkup, sanitizeRichText, type L10n, type RichText as RichDoc, type TextNode } from '@dokonim/core';
 import type { ReactNode } from 'react';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { Icon, type IconName } from '../../ui';
 import type { ShippingOpt } from '../lib/types';
 

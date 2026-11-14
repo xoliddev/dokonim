@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, m, type PanInfo } from 'motion/react';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { local } from '../../lib/store';
 import { dur, spring, useMotionTier } from '../../motion';
 import { haptic, useBackButton } from '../../telegram/shim';

@@ -3,7 +3,7 @@
  * combinations stay visible, dimmed with a strike (§6.2 #5). The heading shows the current choice.
  */
 import { forwardRef } from 'react';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { Chip } from '../../ui';
 import type { ProductOption } from '../lib/types';
 import type { PickerState, Selection } from '../lib/variants';

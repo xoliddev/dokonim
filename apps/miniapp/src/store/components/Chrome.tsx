@@ -3,7 +3,7 @@
  * (Home · Catalog · Cart · Profile, §6.2). The cart tab is The Arc's landing target and rolls its badge.
  */
 import type { ReactNode } from 'react';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { Odometer, useCartTarget } from '../../motion';
 import { navigate } from '../../router/router';
 import { haptic } from '../../telegram/shim';

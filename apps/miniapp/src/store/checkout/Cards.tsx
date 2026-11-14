@@ -1,7 +1,7 @@
 /** Checkout cards: delivery method + address / pickup point, payment method tiles. */
 import { UZ_REGIONS } from '@dokonim/core';
 import type { MessageKey } from '../../i18n';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { haptic } from '../../telegram/shim';
 import { Chip, Icon, Input, type IconName } from '../../ui';
 import type { Quote, ShippingOpt } from '../lib/types';

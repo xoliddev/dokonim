@@ -3,7 +3,7 @@
  * change (Odometer), turns accent-coloured under one hour and disappears when the sale is over.
  */
 import { useEffect, useState } from 'react';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { Odometer } from '../../motion';
 
 const pad = (n: number) => String(n).padStart(2, '0');

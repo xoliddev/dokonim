@@ -4,7 +4,7 @@
  */
 import { useState } from 'react';
 import { useApi, useQuery } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { Button, Chip, Icon, Input, Skeleton, toast } from '../../ui';
 import { Stars } from '../components/Stars';
 import type { QuestionItem, ReviewItem } from '../lib/types';

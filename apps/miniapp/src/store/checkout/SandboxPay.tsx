@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { useApi } from '../../api';
 import type { MessageKey } from '../../i18n';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { shake } from '../../motion';
 import { haptic } from '../../telegram/shim';
 import { Button, Icon, Sheet } from '../../ui';

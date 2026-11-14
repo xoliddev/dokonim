@@ -54,7 +54,7 @@ In the demo the visitor is the seeded user **Dilnoza** (owner of all 3 stores, a
 
 ## UI primitives (`src/ui`)
 `Button` (variant primary|secondary|ghost|danger, size sm|md|lg, `loading`, `block`, `icon`), `Card` (`interactive`,
-`raised`, `padding`), `Chip` (`selected`, `swatch`, `unavailable`), `Input` (`label`, `hint`, `error`, `prefix`,
+`raised`, `padding`), `Chip` (`selected`, `swatch`, `unavailable`), `Input` (`label`, `hint`, `error`, `leading`,
 `suffix`, `multiline`), `Sheet` (`open`, `onClose`, `title`, `footer`; claims BackButton, drag to close),
 `Skeleton`/`SkeletonCard`/`Loading`, `toast.success|error|show`, `Icon name="cart"` (see `ICON_NAMES`),
 `EmptyState`, `announce(text)` for screen readers. Haptics are built into Button/Chip.

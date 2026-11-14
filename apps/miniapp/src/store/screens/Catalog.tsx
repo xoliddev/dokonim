@@ -1,6 +1,6 @@
 /** Catalogue root (§6.2 #2): every root category as a large visual tile, then its sections as chips. */
 import { useQuery } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import type { RouteProps } from '../../router/router';
 import { navigate } from '../../router/router';
 import { Reveal, staggerDelay } from '../../motion';

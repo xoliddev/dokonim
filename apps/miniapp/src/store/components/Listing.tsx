@@ -4,7 +4,7 @@
  */
 import { useState, type ReactNode } from 'react';
 import { useQuery } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import type { MessageKey } from '../../i18n';
 import { navigate } from '../../router/router';
 import { haptic } from '../../telegram/shim';

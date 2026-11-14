@@ -7,7 +7,7 @@ import { addableQty, initialSelection, pickerState, selectValue, type PickerOpti
 import { blockingLines, canCheckout, clampQty, formatPhone, freeShipping, isPhoneValid, lineWarning, normalisePromo, orderError, promoMessage, type LineLike } from '../src/store/lib/cartState';
 import { activeCount, filtersToQuery, parseFilters, toListing, toggleOpt } from '../src/store/lib/filters';
 import { PromoField, Stepper } from '../src/store/screens/Cart';
-import { fixSpaces } from '../src/store/lib/i18n';
+import { uiSpaces } from '../src/i18n';
 import { createI18n } from '@dokonim/i18n';
 
 afterEach(cleanup);
@@ -160,7 +160,7 @@ describe('cart UI', () => {
     fireEvent.change(screen.getByLabelText(t('checkout.promoCode')), { target: { value: 'toy 50' } });
     await act(async () => fireEvent.click(screen.getByRole('button', { name: t('common.apply') })));
     expect(calls[0]).toEqual(['cart.applyPromo', { slug: 'atlas-adras', code: 'TOY50' }]);
-    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain(fixSpaces(money(200_000_00))));
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain(uiSpaces(money(200_000_00))));
     reply = {};
     rerender(
       <ApiProvider client={client}>

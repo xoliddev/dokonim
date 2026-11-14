@@ -5,7 +5,7 @@
  */
 import { useState } from 'react';
 import { ApiError, invalidate, useApi } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { Odometer, Reveal, shake, staggerDelay } from '../../motion';
 import { navigate, type RouteProps } from '../../router/router';
 import { haptic, useMainButton } from '../../telegram/shim';

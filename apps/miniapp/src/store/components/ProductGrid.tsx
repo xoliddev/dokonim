@@ -4,7 +4,7 @@
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useApi, useQuery, type ApiIn } from '../../api';
-import { useI18n } from '../lib/i18n';
+import { useI18n } from '../../i18n';
 import { Reveal, staggerDelay } from '../../motion';
 import { Button, EmptyState, Loading, SkeletonCard } from '../../ui';
 import type { ProductCardData } from '../lib/types';

@@ -17,6 +17,7 @@ const Orders = lazy(() => import('./screens/Orders'));
 const OrderDetail = lazy(() => import('./screens/OrderDetail'));
 const Wishlist = lazy(() => import('./screens/Wishlist'));
 const Profile = lazy(() => import('./screens/Profile'));
+const NotFound = lazy(() => import('./screens/NotFound'));
 
 const r = (path: string, component: RouteDef['component'], chromeless?: boolean): RouteDef => ({ path: `/s/:slug${path}`, component, surface: 'store', chromeless });
 
@@ -33,4 +34,6 @@ export const storeRoutes: RouteDef[] = [
   r('/orders/:orderId', OrderDetail),
   r('/wishlist', Wishlist),
   r('/profile', Profile),
+  // last resort: the router ranks exact matches above a splat, so this never shadows `/s/:slug` itself
+  r('/*', NotFound),
 ];
