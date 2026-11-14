@@ -20,7 +20,7 @@ export default function Profile({ params }: RouteProps) {
   const { t, l, locale } = useI18n();
   const { api } = useApi();
   const store = useCurrentStore();
-  const me = useQuery('me.get', {}, { staleMs: 60_000 });
+  const me = useQuery('me.get', undefined, { staleMs: 60_000 });
   const orders = useQuery('orders.mine', { slug }, { staleMs: 10_000 });
   const user = me.data?.user as { firstName?: string; notify?: { orders?: boolean } } | undefined;
   const [notify, setNotify] = useState<boolean | null>(null);

@@ -171,3 +171,31 @@ describe('cart UI', () => {
     expect(screen.getByRole('button', { name: t('store.remove') })).toBeTruthy();
   });
 });
+
+describe('order tracking', () => {
+  it('re-fetches and re-renders the timeline when the backend pushes an outbox event', async () => {
+    const { default: OrderDetail } = await import('../src/store/screens/OrderDetail');
+    let status = 'awaiting_confirmation';
+    const listeners = new Set<(e: { type: string }) => void>();
+    const order = () => ({
+      id: '0190a0a0-0000-7000-8000-000000000001', number: 7, shortId: 'abc', status, paymentStatus: 'unpaid', paymentMethod: 'cod', fulfilmentKind: 'delivery', total: 100_000_00, subtotal: 100_000_00,
+      discountTotal: 0, shippingTotal: 0, contact: { name: 'Dilnoza', phone: '+998901234567' }, shippingAddress: null, shippingMethodName: null, deliveryPromise: null, placedAt: '2026-11-14T10:00:00Z',
+      items: [], payments: [], allowed: [], pickupCode: null,
+      events: [{ type: 'status_changed', fromStatus: null, toStatus: 'awaiting_confirmation', actor: 'buyer', data: {}, createdAt: '2026-11-14T10:00:00Z' }, ...(status === 'confirmed' ? [{ type: 'status_changed', fromStatus: 'awaiting_confirmation', toStatus: 'confirmed', actor: 'staff', data: {}, createdAt: '2026-11-14T10:05:00Z' }] : [])],
+    });
+    const client = {
+      kind: 'local', ready: Promise.resolve(), status: () => ({ phase: 'ready', progress: 1, persistent: true }), subscribe: () => () => {},
+      api: makeApi(async (name) => (name === 'orders.get' ? order() : name === 'cart.get' ? { count: 0, items: [] } : null)),
+      onEvent: (fn: (e: { type: string }) => void) => (listeners.add(fn), () => listeners.delete(fn)),
+    } as unknown as ApiClient;
+    render(
+      <ApiProvider client={client}>
+        <OrderDetail params={{ slug: 'atlas-adras', orderId: 'live-1' }} query={new URLSearchParams()} />
+      </ApiProvider>,
+    );
+    await waitFor(() => expect(document.querySelector('.st-tl-step.is-now')?.textContent).toContain(t('checkout.status_awaiting_confirmation')));
+    status = 'confirmed';
+    await act(async () => listeners.forEach((fn) => fn({ type: 'outbox' })));
+    await waitFor(() => expect(document.querySelector('.st-tl-step.is-now')?.textContent).toContain(t('checkout.status_confirmed')));
+  });
+});

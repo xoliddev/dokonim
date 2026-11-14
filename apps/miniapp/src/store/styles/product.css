@@ -26,6 +26,8 @@
 .st-pdp-price { font-size: var(--fs-2xl); font-weight: 700; color: var(--c-price); line-height: 1.1; }
 .st-pdp-price.is-sale { color: var(--c-sale); }
 .st-pdp-head .split-full { color: var(--c-price); }
+/* The shared Split formats with U+202F, which is only ~0.13em wide in the display face; loosen the tracking a touch. */
+.st-pdp-head .split-full, .st-pdp-head .split-monthly, .st-pdp-head .split-total { letter-spacing: 0.02em; word-spacing: 0.1em; }
 .st-pdp-title { margin: 4px 0 0; font: 600 var(--fs-lg) / 1.3 var(--font-ui); }
 .st-pdp-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; font-size: var(--fs-xs); }
 .st-pdp-meta .st-rating { font-size: var(--fs-sm); color: var(--c-ink); }
