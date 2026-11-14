@@ -88,6 +88,8 @@ export interface PaymentProviderAdapter {
 export interface RawWebhookRequest {
   /** Sub-route for multi-endpoint protocols: Click 'prepare' | 'complete', Uzum 'check' | 'create' | … */
   action?: string;
+  /** HTTP method as received (e.g. 'POST'). Optional; when present, protocols that require POST reject others (Payme −32300). */
+  method?: string;
   headers: Record<string, string | undefined>;
   /** Exact raw body as received (signatures are computed over it). */
   body: string;

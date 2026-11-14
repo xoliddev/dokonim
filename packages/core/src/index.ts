@@ -19,3 +19,4 @@ export * from './richtext';
 export * from './csv';
 export * from './misc';
 export * from './ports';
+export * from './notifications';
