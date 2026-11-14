@@ -18,6 +18,11 @@ const OrderDetail = lazy(() => import('./screens/orders/OrderDetail'));
 const More = lazy(() => import('./screens/More'));
 const Promos = lazy(() => import('./screens/promos/Promos'));
 const Collections = lazy(() => import('./screens/collections/Collections'));
+const ThemeEditor = lazy(() => import('./screens/settings/ThemeEditor'));
+const Payments = lazy(() => import('./screens/settings/Payments'));
+const Shipping = lazy(() => import('./screens/settings/Shipping'));
+const StoreSettings = lazy(() => import('./screens/settings/StoreSettings'));
+const Staff = lazy(() => import('./screens/settings/Staff'));
 const NotFound = lazy(() => import('./screens/NotFound'));
 
 const r = (path: string, component: RouteDef['component']): RouteDef => ({ path: `/m/:slug${path}`, component, surface: 'seller' });
@@ -34,6 +39,12 @@ export const sellerRoutes: RouteDef[] = [
   r('/more', More),
   r('/promos', Promos),
   r('/collections', Collections),
+  r('/settings', More),
+  r('/settings/theme', ThemeEditor),
+  r('/settings/payments', Payments),
+  r('/settings/shipping', Shipping),
+  r('/settings/store', StoreSettings),
+  r('/settings/staff', Staff),
   // catch-alls: explicit depths, because a `/*` splat also matches the bare `/m/:slug` and would outrank it
   r('/:a', NotFound),
   r('/:a/:b', NotFound),
