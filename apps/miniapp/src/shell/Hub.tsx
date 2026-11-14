@@ -49,6 +49,9 @@ export default function Hub() {
           ))}
         </Stagger>
       )}
+      <Button variant="secondary" block icon={<Icon name="plus" />} onClick={() => navigate('/m/new/create-store')} style={{ marginTop: 16 }}>
+        {t('common.createStore')}
+      </Button>
     </div>
   );
 }

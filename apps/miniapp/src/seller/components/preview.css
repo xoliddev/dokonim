@@ -1,0 +1,39 @@
+/* Live storefront preview (onboarding + theme editor). All colours come from the compiled store vars. */
+.pv-frame { position: relative; display: grid; border-radius: 30px; padding: 8px; background: #15120f; box-shadow: 4px 6px 0 var(--c-print); overflow: hidden; isolation: isolate; }
+.pv-frame > .pv-paper { grid-area: 1 / 1; }
+.pv-paper { display: grid; gap: 10px; align-content: start; min-height: 100%; padding: 12px 12px 14px; border-radius: 23px; background: var(--c-surface); color: var(--c-ink);
+  font-family: var(--font-ui); font-size: 11px; transform-origin: 50% 0; }
+.pv-top { display: flex; align-items: center; gap: 8px; }
+.pv-logo { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; overflow: hidden; flex: none; background: var(--c-accent); color: var(--c-on-accent);
+  font: 700 12px / 1 var(--font-display); }
+.pv-logo img { width: 100%; height: 100%; object-fit: cover; }
+.pv-name { flex: 1; min-width: 0; font: 650 13px / 1.2 var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pv-cart { width: 22px; height: 22px; border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--c-ink); }
+.pv-hero { position: relative; overflow: hidden; display: grid; gap: 8px; justify-items: start; padding: 14px 12px; border-radius: var(--r-card); background: var(--c-accent); color: var(--c-on-accent); }
+.pv-hero-text { position: relative; max-width: 80%; font: 650 15px / 1.15 var(--font-display); }
+.pv-hero-btn { position: relative; padding: 6px 10px; border-radius: var(--r-btn); background: var(--c-on-accent); color: var(--c-accent); font-weight: 700; font-size: 10px; }
+.pv-motif { position: absolute; inset: 0 0 0 55%; opacity: 0.22; background: currentColor; }
+.pv-motif-ikat { -webkit-mask: var(--ikat) repeat 0 0 / 30px 18px; mask: var(--ikat) repeat 0 0 / 30px 18px; }
+.pv-motif-suzani { background: radial-gradient(circle at 50% 50%, currentColor 0 4px, transparent 5px) 0 0 / 18px 18px,
+  radial-gradient(circle at 50% 50%, transparent 0 7px, currentColor 7.5px 8.5px, transparent 9px) 9px 9px / 18px 18px; }
+.pv-chips { display: flex; gap: 5px; }
+.pv-chip { padding: 5px 9px; border-radius: var(--r-chip); background: var(--c-surface-raised); box-shadow: inset 0 0 0 1px var(--c-outline); font-weight: 600; font-size: 10px; }
+.pv-chip.is-on { background: var(--c-ink); color: var(--c-surface); box-shadow: none; }
+.pv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+.pv-card { display: grid; align-content: start; gap: 6px; min-width: 0; }
+.pv-img { width: 100%; aspect-ratio: var(--card-aspect); object-fit: var(--image-fit); border-radius: var(--r-media); background: var(--c-surface-sunken); display: block; }
+.pv-info { display: grid; gap: 2px; min-width: 0; }
+.pv-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pv-price { font: 700 11px / 1.2 var(--font-display); font-variant-numeric: tabular-nums; color: var(--c-price); display: flex; flex-wrap: wrap; gap: 0 5px; }
+.pv-price s { font: 500 9px / 1.4 var(--font-ui); color: var(--c-price-old); }
+.pv-buy { justify-self: stretch; text-align: center; padding: 9px; border-radius: var(--r-btn); background: var(--c-accent); color: var(--c-on-accent); font-weight: 700; box-shadow: 2px 2px 0 var(--c-print); }
+
+/* card styles */
+.pv-paper[data-card='catalog'] .pv-card { padding: 6px; border-radius: var(--r-card); background: var(--c-surface-raised); box-shadow: var(--e0); }
+.pv-paper[data-card='catalog'] .pv-img { object-fit: contain; }
+.pv-paper[data-card='editorial'] .pv-title { font: 600 12px / 1.2 var(--font-display); }
+.pv-paper[data-card='editorial'] .pv-img { border-radius: 2px; }
+.pv-paper[data-card='ticket'] .pv-card { border-radius: var(--r-card); background: var(--c-surface-raised); box-shadow: var(--e1); overflow: hidden; }
+.pv-paper[data-card='ticket'] .pv-img { border-radius: 0; }
+.pv-paper[data-card='ticket'] .pv-info { padding: 4px 7px 7px; border-top: 1.5px dashed var(--c-outline); }
+.pv-paper[data-density='compact'] { gap: 7px; }
