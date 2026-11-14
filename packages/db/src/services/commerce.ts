@@ -975,7 +975,7 @@ export function commerceService(s: Ctx) {
       }),
 
     // ── Background jobs ────────────────────────────────────────────────────
-    'jobs.expireReservations': async () => {
+    'jobs.expireReservations': async (_a?: Actor, _i?: Record<string, never>) => {
       const due = await s.tx(null, SYSTEM, (tx) => tx.query<{ storeId: string; orderId: string }>('select * from expired_reservation_orders($1)', [s.now().toISOString()]));
       let cancelled = 0;
       for (const d of due)
@@ -991,7 +991,7 @@ export function commerceService(s: Ctx) {
       return { cancelled };
     },
 
-    'jobs.autoComplete': async () => {
+    'jobs.autoComplete': async (_a?: Actor, _i?: Record<string, never>) => {
       const days = s.deps.returnWindowDays ?? 7;
       const due = await s.tx(null, SYSTEM, (tx) => tx.query<{ storeId: string; orderId: string }>('select * from deliverable_orders_due($1)', [new Date(s.now().getTime() - days * 86_400_000).toISOString()]));
       for (const d of due)

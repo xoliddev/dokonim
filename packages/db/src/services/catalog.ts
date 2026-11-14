@@ -632,7 +632,7 @@ export function catalogService(s: Ctx) {
     // ── Inventory ───────────────────────────────────────────────────────────
     'admin.inventory.list': async (actor: Actor, i: { storeId: string; lowStock?: boolean; q?: string }) =>
       s.staff(i.storeId, actor, 'dashboard.read', async (tx) => {
-        const rows = await tx.query<Record<string, unknown> & { optionValueIds: string[] }>(
+        const rows = await tx.query<{ variantId: string; sku: string; optionValueIds: string[]; trackInventory: boolean; allowBackorder: boolean; productId: string; title: L10n; coverUrl: string | null; onHand: number; reserved: number; lowStockThreshold: number; available: number }>(
           `select v.id as variant_id, v.sku, v.option_value_ids, v.track_inventory, v.allow_backorder, p.id as product_id, p.title, p.cover_url, l.on_hand, l.reserved, l.low_stock_threshold,
              (l.on_hand - l.reserved) as available
            from product_variants v join products p on p.id = v.product_id join inventory_levels l on l.variant_id = v.id

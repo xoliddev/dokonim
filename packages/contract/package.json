@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
-  "dependencies": { "@dokonim/core": "*", "zod": "^4.6.7" }
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@dokonim/core": "*",
+    "zod": "^4.6.7",
+    "@dokonim/db": "*"
+  }
 }
