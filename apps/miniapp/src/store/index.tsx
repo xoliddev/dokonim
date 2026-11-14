@@ -5,9 +5,18 @@
 import { lazy } from 'react';
 import type { RouteDef } from '../router/router';
 
-const Placeholder = lazy(() => import('./screens/Placeholder'));
+const Home = lazy(() => import('./screens/Home'));
+const Catalog = lazy(() => import('./screens/Catalog'));
+const Category = lazy(() => import('./screens/Category'));
+const Collection = lazy(() => import('./screens/Collection'));
+const Search = lazy(() => import('./screens/Search'));
+
+const r = (path: string, component: RouteDef['component'], chromeless?: boolean): RouteDef => ({ path: `/s/:slug${path}`, component, surface: 'store', chromeless });
 
 export const storeRoutes: RouteDef[] = [
-  { path: '/s/:slug', component: Placeholder, surface: 'store' },
-  { path: '/s/:slug/*', component: Placeholder, surface: 'store' },
+  r('', Home),
+  r('/catalog', Catalog),
+  r('/c/*', Category),
+  r('/collection/:collectionSlug', Collection),
+  r('/search', Search),
 ];

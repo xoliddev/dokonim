@@ -1,0 +1,47 @@
+/* Listing: sticky filter bar, count line, sort list, filter sheet. */
+.st-fbar { position: sticky; top: var(--st-top-h, 54px); z-index: 15; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+  margin: -12px -16px 0; padding: 10px 16px; background: color-mix(in oklab, var(--c-surface) 94%, transparent); border-bottom: 1px solid var(--c-outline); }
+.st-fbar::-webkit-scrollbar { display: none; }
+.st-fbar > * { flex: none; }
+.st-fbar-sort .icon { order: 2; }
+.st-fbar-n { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--c-accent); color: var(--c-on-accent); font-size: 11px; font-weight: 800; }
+.st-count-line { display: flex; align-items: center; justify-content: space-between; margin-bottom: -10px; font-size: var(--fs-sm); color: var(--c-ink-muted); font-weight: 600; min-height: 24px; }
+
+.st-sortlist { display: grid; padding-bottom: 8px; }
+.st-sortopt { display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 0 4px; border: 0; background: none; cursor: pointer; font-size: var(--fs-md); text-align: left; }
+.st-sortopt + .st-sortopt { border-top: 1px solid var(--c-outline); }
+.st-sortopt.is-on { font-weight: 700; color: var(--c-accent-text); }
+
+.st-filters { display: grid; gap: 4px; padding-bottom: 8px; }
+.st-fsec { display: grid; gap: 10px; padding: 12px 0; }
+.st-fsec + .st-fsec { border-top: 1px solid var(--c-outline); }
+.st-fsec h3 { margin: 0; font-size: var(--fs-sm); font-weight: 700; text-transform: capitalize; }
+.st-price-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.st-price-row .field, .st-price-row .field-box { min-width: 0; }
+.st-price-row .field-affix { font-size: var(--fs-sm); }
+.st-fhint { margin: 0; font-size: var(--fs-xs); }
+.st-chips.is-wrap { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
+.st-fcount { font-size: 11px; opacity: 0.6; font-variant-numeric: tabular-nums; }
+
+/* catalogue & category */
+.st-catlist { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+.st-subcats { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px; }
+.st-subcats::-webkit-scrollbar { display: none; }
+.st-subcats > * { flex: none; }
+.st-chip-count { font-size: 11px; opacity: 0.6; }
+.st-cat-head { display: grid; gap: 6px; }
+.st-cat-title { margin: 0; font: 700 var(--fs-xl) / 1.15 var(--font-display); }
+
+/* search */
+.st-searchbar { position: sticky; top: 0; z-index: 20; display: flex; gap: 8px; align-items: center; padding: 10px 16px; background: var(--c-surface); border-bottom: 1px solid var(--c-outline); }
+.st-searchbar .field { flex: 1; }
+.st-searchbar .field-box { min-height: 44px; box-shadow: var(--e1); }
+.st-search-clear { border: 0; background: none; color: var(--c-ink-muted); display: grid; place-items: center; cursor: pointer; padding: 2px; }
+.st-suggest { display: grid; gap: 4px; }
+.st-suggest-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border: 0; background: none; cursor: pointer; text-align: left; width: 100%; }
+.st-suggest-row img { width: 40px; height: 50px; object-fit: cover; border-radius: 7px; background: var(--c-surface-sunken); }
+.st-suggest-row .price { margin-left: auto; font-size: var(--fs-sm); font-weight: 700; }
+.st-suggest-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-recent { display: flex; flex-wrap: wrap; gap: 8px; }
+mark.st-hl { background: var(--c-accent-soft); color: var(--c-accent-text); border-radius: 3px; padding: 0 1px; }
+.st-searchbar input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
