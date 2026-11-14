@@ -902,7 +902,7 @@ export function commerceService(s: Ctx) {
       if (!isUuid(i.storeId)) return { status: 404, headers: {}, body: '{"error":"store"}' };
       const cfg = await s.tx(i.storeId, SYSTEM, async (tx) => (await providerConfigs(s, tx, i.storeId)).find((c) => c.provider === i.provider));
       const handler = s.deps.payments.handler(i.provider);
-      if (!cfg || !handler) return { status: 404, headers: { 'content-type': 'application/json' }, body: '{"error":"provider not configured"}' };
+      if (!cfg || !cfg.enabled || !handler) return { status: i.provider === 'payme' ? 200 : 404, headers: { 'content-type': 'application/json' }, body: '{"error":"provider not configured"}' };
       return handler.handle({ action: i.action, method: i.method, headers: i.headers, body: i.body, ip: i.ip }, cfg, sqlLedger(s, i.storeId));
     },
 
