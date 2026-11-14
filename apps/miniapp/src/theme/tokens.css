@@ -1,0 +1,120 @@
+/*
+ * "Bozor Modern" (§12.4): paper & ink. These are the platform defaults; a store's compiled theme
+ * (core.compileTheme → applyStoreTheme) overrides the same custom properties on [data-store].
+ * Depth = crisp 1px outlines + offset "print" shadows, never blur.
+ */
+@property --brand-h { syntax: '<number>'; inherits: true; initial-value: 340; }
+@property --brand-l { syntax: '<number>'; inherits: true; initial-value: 0.45; }
+
+:root {
+  /* colour (system tokens) */
+  --c-surface: oklch(97% 0.01 80);
+  --c-surface-raised: oklch(99.4% 0.004 80);
+  --c-surface-sunken: oklch(94% 0.012 80);
+  --c-ink: oklch(21% 0.015 60);
+  --c-ink-muted: oklch(47% 0.018 60);
+  --c-outline: oklch(87% 0.014 80);
+  --c-accent: #a3195b;
+  --c-on-accent: #ffffff;
+  --c-accent-soft: oklch(94% 0.03 350);
+  --c-accent-text: #a3195b;
+  --c-accent-2: #1f6e5a;
+  --c-price: var(--c-ink);
+  --c-price-old: oklch(55% 0.015 60);
+  --c-sale: #c0392b;
+  --c-rating: #c47f00;
+  --c-focus: #a3195b;
+  --c-success: #23784a;
+  --c-warning: #a0620a;
+  --c-danger: #c0392b;
+  --c-print: color-mix(in oklab, var(--c-ink) 9%, transparent);
+  --c-scrim: rgb(20 16 12 / 0.42);
+
+  /* shape & space (component tokens) */
+  --r-card: 14px;
+  --r-media: 10px;
+  --r-btn: 14px;
+  --r-chip: 999px;
+  --r-sheet: 22px;
+  --pad-card: 14px;
+  --gap: 12px;
+  --card-aspect: 4 / 5;
+  --image-fit: cover;
+
+  /* elevation e0–e3: outline first, then offset print shadow */
+  --e0: 0 0 0 1px var(--c-outline);
+  --e1: 0 0 0 1px var(--c-outline), 2px 2px 0 var(--c-print);
+  --e2: 0 0 0 1px var(--c-outline), 3px 4px 0 var(--c-print);
+  --e3: 0 0 0 1px var(--c-ink), 4px 5px 0 var(--c-print);
+
+  /* type */
+  --font-display: 'Unbounded Variable', 'Onest Variable', system-ui, sans-serif;
+  --font-ui: 'Onest Variable', system-ui, -apple-system, Roboto, sans-serif;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 15px;
+  --fs-lg: 17px;
+  --fs-xl: 22px;
+  --fs-2xl: 28px;
+
+  /* motion (§13.2) — mirrored in motion/tokens.ts */
+  --dur-xs: 90ms;
+  --dur-sm: 140ms;
+  --dur-md: 220ms;
+  --dur-lg: 320ms;
+  --dur-xl: 480ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-accel: cubic-bezier(0.3, 0, 1, 1);
+
+  /* ikat (abr) motif: blurred-edge stair diamonds, tinted via currentColor in mask */
+  --ikat: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='24' viewBox='0 0 40 24'%3E%3Cpath d='M20 0l4 4h-2l4 4h-2l4 4-4 4h2l-4 4h2l-4 4-4-4h2l-4-4h2l-4-4 4-4h-2l4-4h-2z' fill='%23000' fill-opacity='.9'/%3E%3Cpath d='M0 10h3v4H0zM37 10h3v4h-3z' fill='%23000' fill-opacity='.5'/%3E%3C/svg%3E");
+
+  color-scheme: light;
+}
+
+[data-scheme='dark'] {
+  --c-surface: oklch(20% 0.012 60);
+  --c-surface-raised: oklch(25% 0.012 60);
+  --c-surface-sunken: oklch(16% 0.01 60);
+  --c-ink: oklch(95% 0.01 80);
+  --c-ink-muted: oklch(74% 0.015 80);
+  --c-outline: oklch(34% 0.012 60);
+  --c-accent: #e0568f;
+  --c-on-accent: #1d1a16;
+  --c-accent-soft: oklch(32% 0.06 350);
+  --c-accent-text: #f08ab3;
+  --c-print: rgb(0 0 0 / 0.45);
+  --c-scrim: rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  background: var(--c-surface);
+  color: var(--c-ink);
+  font: 400 var(--fs-md) / 1.45 var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+
+/* Prices are the hero typographic element: tabular numerals, display face. */
+.price { font-family: var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; white-space: nowrap; }
+.price-old { color: var(--c-price-old); text-decoration: line-through; font-variant-numeric: tabular-nums; }
+.display { font-family: var(--font-display); letter-spacing: -0.015em; }
+.muted { color: var(--c-ink-muted); }
+.ikat-band { height: 10px; background-color: currentColor; -webkit-mask: var(--ikat) repeat-x center / 40px 24px; mask: var(--ikat) repeat-x center / 40px 24px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; scroll-behavior: auto !important; }
+}
+:root[data-motion='minimal'] *, :root[data-motion='minimal'] *::before, :root[data-motion='minimal'] *::after {
+  animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 140ms !important; transition-property: opacity !important;
+}

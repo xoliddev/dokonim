@@ -1,0 +1,93 @@
+/* Shell: desktop frame, phone, faux Telegram chrome, demo bar, boot, hub, screen layout. */
+
+/* ── desktop page ── */
+.desk { min-height: 100%; display: grid; grid-template-columns: minmax(260px, 340px) auto; justify-content: center; align-items: center; gap: 56px; padding: 32px;
+  background: radial-gradient(circle at 20% 10%, color-mix(in oklab, var(--c-accent) 8%, transparent), transparent 50%), var(--c-surface-sunken); }
+.desk-side { display: grid; gap: 18px; align-content: center; }
+.desk-brand { display: grid; gap: 8px; font-size: 30px; color: var(--c-ink); }
+.desk-brand .ikat-band { color: var(--c-accent); width: 160px; }
+.phone { position: relative; width: 390px; height: min(844px, calc(100vh - 64px)); border-radius: 52px; padding: 12px; background: #15120f;
+  box-shadow: 0 0 0 2px #2c2621, 10px 12px 0 rgb(0 0 0 / 0.12); }
+.phone-notch { position: absolute; top: 20px; left: 50%; width: 110px; height: 30px; margin-left: -55px; border-radius: 16px; background: #000; z-index: 5; }
+.phone-screen { position: relative; height: 100%; border-radius: 40px; overflow: hidden; background: var(--c-surface); }
+.phone-screen .app-viewport { padding-top: 44px; } /* status-bar strip takes the store surface colour */
+
+/* ── phones / real Telegram ── */
+.frame-full { height: 100%; display: flex; flex-direction: column; }
+.frame-full-app { flex: 1; min-height: 0; position: relative; }
+.demo-mobile-top { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--c-surface-sunken); border-bottom: 1px solid var(--c-outline); }
+.demo-mobile-top .demo-label { flex: 1; font-size: 11px; padding: 4px 10px; }
+.demo-toggle { width: 32px; height: 32px; border-radius: 50%; border: 0; display: grid; place-items: center; background: var(--c-surface-raised); box-shadow: var(--e0); cursor: pointer; }
+
+/* ── demo label & bar ── */
+.demo-label { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: var(--c-ink); color: var(--c-surface);
+  font-size: var(--fs-sm); font-weight: 600; box-shadow: 2px 2px 0 var(--c-print); width: fit-content; }
+.demo-label em { font-style: normal; opacity: 0.75; }
+.demo-dot { width: 8px; height: 8px; border-radius: 50%; background: #3ccf7a; box-shadow: 0 0 0 3px rgb(60 207 122 / 0.25); flex: none; }
+.demo-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.demo-bar.is-compact { padding: 8px 10px; background: var(--c-surface-sunken); border-bottom: 1px solid var(--c-outline); gap: 8px; }
+.demo-group { display: inline-flex; padding: 3px; border-radius: 12px; background: var(--c-surface-raised); box-shadow: var(--e0); }
+.seg { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; border-radius: 9px; background: transparent; cursor: pointer;
+  font-size: var(--fs-sm); font-weight: 600; color: var(--c-ink-muted); transition: transform var(--dur-xs) var(--ease-standard); }
+.seg:active { transform: scale(0.96); }
+.seg.is-on { background: var(--c-ink); color: var(--c-surface); }
+.seg:disabled { opacity: 0.45; cursor: default; }
+.seg-sm { padding: 0 9px; }
+.seg-icon { background: var(--c-surface-raised); box-shadow: var(--e0); border-radius: 12px; height: 38px; width: 38px; justify-content: center; padding: 0; }
+.demo-select { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 10px; border-radius: 12px; background: var(--c-surface-raised); box-shadow: var(--e0); }
+.demo-select select { border: 0; background: transparent; font-size: var(--fs-sm); font-weight: 600; outline: none; max-width: 170px; cursor: pointer; }
+
+/* ── app viewport ── */
+.app-viewport { position: relative; height: 100%; display: flex; flex-direction: column; background: var(--c-surface); color: var(--c-ink); overflow: hidden; font-family: var(--font-ui); }
+.app-main { flex: 1; min-height: 0; position: relative; }
+.overlay-root { position: absolute; inset: 0; pointer-events: none; z-index: 40; }
+.overlay-root > * { pointer-events: auto; }
+.screen-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }
+.screen { min-height: 100%; }
+.screen-pad { padding: 16px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+.placeholder-title { margin: 8px 0 4px; font-size: var(--fs-xl); }
+
+/* ── faux Telegram chrome ── */
+.tg-header { flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 52px; padding: 0 10px;
+  background: var(--c-surface-raised); border-bottom: 1px solid var(--c-outline); }
+.tg-header-btn { justify-self: start; display: inline-flex; align-items: center; gap: 2px; border: 0; background: transparent; color: var(--c-accent-text); font-weight: 600; cursor: pointer; padding: 6px; }
+.tg-header-title { display: grid; justify-items: center; line-height: 1.2; max-width: 190px; }
+.tg-header-title strong { font-size: var(--fs-md); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.tg-header-title span { font-size: 11px; color: var(--c-ink-muted); }
+.tg-header-menu { position: relative; justify-self: end; color: var(--c-ink-muted); padding: 6px; }
+.tg-haptic-tick { position: absolute; inset: 2px; border-radius: 50%; border: 2px solid var(--c-accent); animation: haptic 360ms var(--ease-decel) forwards; pointer-events: none; }
+@keyframes haptic { from { transform: scale(0.4); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+.tg-bottom-bar { flex: none; padding: 8px 12px calc(10px + env(safe-area-inset-bottom)); background: var(--c-surface-raised); border-top: 1px solid var(--c-outline); z-index: 30; }
+.tg-main-btn { position: relative; overflow: hidden; width: 100%; height: 48px; border: 0; border-radius: 12px; background: var(--c-accent); color: var(--c-on-accent);
+  font-weight: 700; font-size: var(--fs-md); cursor: pointer; display: grid; place-items: center; transition: transform var(--dur-xs) var(--ease-standard); }
+.tg-main-btn:active:not(:disabled) { transform: scale(0.98); }
+.tg-main-btn:disabled { opacity: 0.6; }
+.tg-main-btn.has-shine::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
+  transform: translateX(-100%); animation: shine 2.4s var(--ease-standard) infinite; }
+@keyframes shine { 60%, 100% { transform: translateX(100%); } }
+
+/* ── boot ── */
+.pre-boot { height: 100%; display: grid; place-content: center; justify-items: center; gap: 16px; font-size: 28px; }
+.boot { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 14px; padding: 24px; text-align: center; }
+.boot-logo { font-size: 34px; color: var(--c-ink); }
+.boot-band { width: 140px; color: var(--c-accent); }
+.boot-text { margin: 0; font-weight: 600; }
+.boot-progress { width: 180px; height: 6px; border-radius: 3px; background: var(--c-surface-sunken); overflow: hidden; }
+.boot-progress span { display: block; height: 100%; background: var(--c-accent); transform-origin: left; transition: transform var(--dur-lg) var(--ease-standard); }
+.boot-skeleton { width: 100%; max-width: 300px; display: grid; gap: 10px; margin-top: 8px; }
+.boot-error { max-width: 30ch; font-size: var(--fs-sm); word-break: break-word; }
+.boot-demo { font-size: var(--fs-xs); margin: 6px 0 0; }
+
+/* ── hub ── */
+.hub-head { display: grid; gap: 6px; margin: 4px 0 18px; }
+.hub-band { width: 96px; color: var(--c-accent); }
+.hub-title { margin: 0; font-size: var(--fs-2xl); }
+.hub-head p { margin: 0; }
+.hub-list { display: grid; gap: 12px; }
+.hub-store { display: grid; gap: 12px; }
+.hub-store-name { display: flex; gap: 12px; align-items: center; }
+.hub-store-title { font-weight: 700; font-size: var(--fs-lg); }
+.hub-store-slug { font-size: var(--fs-sm); }
+.hub-store-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+

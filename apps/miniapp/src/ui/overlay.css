@@ -1,0 +1,42 @@
+/* Overlays (sheet, toast) and motion components (odometer, split, morph). */
+
+/* Sheet */
+.sheet-layer { position: absolute; inset: 0; z-index: 50; display: flex; align-items: flex-end; }
+.sheet-scrim { position: absolute; inset: 0; background: var(--c-scrim); }
+.sheet { position: relative; width: 100%; display: flex; flex-direction: column; background: var(--c-surface-raised); color: var(--c-ink);
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0; box-shadow: 0 -1px 0 var(--c-outline); outline: none; padding-bottom: env(safe-area-inset-bottom); }
+.sheet-grip { width: 40px; height: 4px; border-radius: 2px; background: var(--c-outline); margin: 10px auto 4px; flex: none; }
+.sheet-title { margin: 6px 20px 8px; font: 600 var(--fs-lg) / 1.3 var(--font-display); }
+.sheet-content { overflow: auto; padding: 4px 20px 16px; overscroll-behavior: contain; }
+.sheet-footer { padding: 12px 20px 16px; border-top: 1px solid var(--c-outline); display: flex; gap: 10px; }
+
+/* Toast */
+.toast-host { position: absolute; left: 12px; right: 12px; bottom: 76px; z-index: 60; display: grid; gap: 8px; pointer-events: none; }
+.toast { pointer-events: auto; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--c-ink); color: var(--c-surface);
+  box-shadow: 3px 3px 0 var(--c-print); font-size: var(--fs-sm); font-weight: 500; }
+.toast-success { border-left: 4px solid var(--c-success); }
+.toast-error { border-left: 4px solid var(--c-danger); }
+.toast-msg { flex: 1; }
+.toast-action { border: 0; background: transparent; color: inherit; font-weight: 700; cursor: pointer; text-decoration: underline; }
+
+/* Odometer */
+.odo { display: inline-flex; font-variant-numeric: tabular-nums; }
+.odo-slot { position: relative; display: inline-block; height: 1em; line-height: 1; overflow: hidden; }
+.odo-col { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; transition: transform 260ms var(--ease-standard); }
+.odo-col > span, .odo-sizer { display: block; height: 1em; line-height: 1; }
+.odo-sizer { visibility: hidden; }
+.odo-static { white-space: pre; line-height: 1; }
+
+/* The Split */
+.split { display: grid; gap: 10px; }
+.split-figures { position: relative; min-height: 2.2em; display: grid; align-content: end; }
+.split-full { font-size: var(--fs-2xl); font-weight: 700; color: var(--c-price); }
+.split-monthly { font-size: var(--fs-2xl); font-weight: 700; color: var(--c-accent-text); }
+.split-bar { display: flex; gap: 4px; height: 8px; }
+.split-seg { flex: 1; border-radius: 4px; background: var(--c-accent); transform-origin: left center; }
+.split-total { font-size: var(--fs-sm); }
+.split-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+
+/* Continuity */
+.morph-media { display: block; width: 100%; aspect-ratio: var(--card-aspect); object-fit: var(--image-fit); background: var(--c-surface-sunken); }
+::view-transition-group(*) { animation-duration: 360ms; animation-timing-function: var(--ease-decel); }

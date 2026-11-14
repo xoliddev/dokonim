@@ -90,7 +90,7 @@ describe('seedDemo on PGlite', () => {
     const { actor } = await be.upsertUser(DEMO_USER);
     for (const s of res.stores) {
       expect(s.orders.placed).toBeGreaterThanOrEqual(DEMO_STORES.find((x) => x.slug === s.slug)!.orders.count * 0.8);
-      const list = (await be.methods['admin.orders.list'](actor, { storeId: s.id })) as { items: Array<{ status: string }> };
+      const list = (await be.methods['admin.orders.list'](actor, { storeId: s.id })) as unknown as { items: Array<{ status: string }> };
       const statuses = new Set(list.items.map((o) => o.status));
       expect(statuses.size).toBeGreaterThanOrEqual(3);
     }
