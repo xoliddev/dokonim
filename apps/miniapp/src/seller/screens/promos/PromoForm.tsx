@@ -17,6 +17,7 @@ export interface Promo {
   valueType: 'percent' | 'fixed' | 'free_shipping' | 'bxgy';
   value: number;
   bxgy: { buy: number; get: number } | null;
+  appliesTo?: { type: 'all' | 'products' | 'collections' | 'category'; ids?: string[] };
   conditions: { minSubtotal?: number | null; firstOrder?: boolean };
   startsAt: string | null;
   endsAt: string | null;
@@ -75,7 +76,7 @@ function Body({ promo, storeId, onClose, t }: { promo: Promo | null; storeId: st
     try {
       await save.run({
         storeId, ...(promo ? { id: promo.id } : {}), kind, title: title.trim() || code || t(`seller.vt_${vt}` as MessageKey), code: kind === 'code' ? code : null, valueType: vt,
-        value: vt === 'percent' ? p : vt === 'fixed' ? amount! : 0, bxgy: vt === 'bxgy' ? { buy: Number(buy) || 1, get: Number(get) || 1 } : null, appliesTo: { type: 'all' },
+        value: vt === 'percent' ? p : vt === 'fixed' ? amount! : 0, bxgy: vt === 'bxgy' ? { buy: Number(buy) || 1, get: Number(get) || 1 } : null, appliesTo: promo?.appliesTo ?? { type: 'all' }, // keep an existing product / collection scope
         conditions: { minSubtotal: min, firstOrder: first }, startsAt: fromLocal(starts), endsAt: fromLocal(ends), usageLimit: limit ? Number(limit) : null, perCustomerLimit: per ? Number(per) : null,
         status: on ? 'active' : 'disabled',
       });

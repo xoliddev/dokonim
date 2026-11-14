@@ -43,7 +43,7 @@ export default function Promos(_: RouteProps) {
     if (!s.storeId) return;
     setFlip((f) => ({ ...f, [p.id]: on }));
     try {
-      await save.run({ storeId: s.storeId, id: p.id, kind: p.kind, title: p.title, code: p.code, valueType: p.valueType, value: p.value, bxgy: p.bxgy, appliesTo: (p as unknown as { appliesTo: { type: 'all' } }).appliesTo ?? { type: 'all' }, conditions: p.conditions, startsAt: p.startsAt, endsAt: p.endsAt, usageLimit: p.usageLimit, perCustomerLimit: p.perCustomerLimit, status: on ? 'active' : 'disabled' });
+      await save.run({ storeId: s.storeId, id: p.id, kind: p.kind, title: p.title, code: p.code, valueType: p.valueType, value: p.value, bxgy: p.bxgy, appliesTo: p.appliesTo ?? { type: 'all' }, conditions: p.conditions, startsAt: p.startsAt, endsAt: p.endsAt, usageLimit: p.usageLimit, perCustomerLimit: p.perCustomerLimit, status: on ? 'active' : 'disabled' });
     } catch (e) {
       setFlip((f) => ({ ...f, [p.id]: !on }));
       toastError(e, t);
