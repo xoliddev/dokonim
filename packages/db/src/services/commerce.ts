@@ -51,12 +51,15 @@ async function cartRow(tx: Sql, store: StoreRow, userId: string): Promise<{ id: 
 }
 
 async function cartLines(tx: Sql, store: StoreRow, cartId: string, lock = false): Promise<CartLineRow[]> {
+  if (lock)
+    // row locks in variant-id order so concurrent checkouts serialise without deadlocks (§9.3)
+    await tx.query(`select l.variant_id from inventory_levels l join cart_items ci on ci.variant_id = l.variant_id where ci.store_id = $1 and ci.cart_id = $2 order by l.variant_id for update of l`, [store.id, cartId]);
   return tx.query<CartLineRow>(
     `select ci.variant_id, ci.qty, ci.added_price, p.id as product_id, p.title as product_title, p.short_id, p.status, p.is_digital, p.cover_url,
        v.media_url, v.price, v.compare_at_price, v.sku, v.weight_g, v.option_value_ids, v.track_inventory, v.allow_backorder, v.ikpu_code, v.package_code, v.vat_percent,
        coalesce(l.on_hand - l.reserved, 0)::int as available, coalesce(l.on_hand, 0)::int as on_hand
      from cart_items ci join product_variants v on v.id = ci.variant_id join products p on p.id = v.product_id left join inventory_levels l on l.variant_id = v.id
-     where ci.store_id = $1 and ci.cart_id = $2 order by ci.variant_id ${lock ? 'for update of l' : ''}`,
+     where ci.store_id = $1 and ci.cart_id = $2 order by ci.variant_id`,
     [store.id, cartId],
   );
 }
