@@ -112,3 +112,26 @@ button.sl-row:active, a.sl-row:active { background: var(--c-surface-sunken); }
 .sl-icon-btn:active { transform: scale(0.92); }
 .sl-icon-btn.is-plain { background: transparent; box-shadow: none; }
 .sl-icon-btn:disabled { opacity: 0.4; cursor: default; }
+.sl-link { font-size: var(--fs-sm); font-weight: 600; color: var(--c-accent-text); text-decoration: none; }
+
+/* category picker */
+.cp { display: grid; gap: 10px; }
+.cp-crumbs { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; font-size: var(--fs-sm); color: var(--c-ink-muted); }
+.cp-crumb-wrap { display: inline-flex; align-items: center; gap: 2px; }
+.cp-crumb { border: 0; background: transparent; padding: 4px 6px; border-radius: 8px; color: var(--c-accent-text); font: 600 var(--fs-sm) / 1.2 var(--font-ui); cursor: pointer; }
+.cp-crumb.is-on { color: var(--c-ink); background: var(--c-surface-sunken); }
+.cp-list { display: grid; gap: 6px; min-height: 120px; align-content: start; }
+.cp-empty { padding: 12px 0; text-align: center; }
+.cp-row-wrap { display: flex; gap: 6px; }
+.cp-row-wrap.is-off { opacity: 0.45; }
+.cp-row { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 12px; border: 0; border-radius: 12px; background: var(--c-surface-raised);
+  box-shadow: var(--e0); color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; }
+.cp-row:disabled { cursor: default; }
+.cp-row.is-on { box-shadow: 0 0 0 2px var(--c-ink); }
+.cp-row > .icon:first-child { color: var(--c-accent-text); }
+.cp-row-main { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.cp-row-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-row-sub { font-size: var(--fs-xs); color: var(--c-ink-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-drill { flex: none; display: inline-flex; align-items: center; gap: 2px; padding: 0 8px; border: 0; border-radius: 12px; background: var(--c-surface-sunken); color: var(--c-ink); cursor: pointer; }
+.cp-drill-n { font-size: var(--fs-xs); font-weight: 700; }
+.cp-foot { position: sticky; bottom: 0; padding-top: 6px; background: var(--c-surface-raised); }

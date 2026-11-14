@@ -9,12 +9,15 @@ import { lazy } from 'react';
 import type { RouteDef } from '../router/router';
 
 const Wizard = lazy(() => import('./screens/onboarding/Wizard'));
+const Dashboard = lazy(() => import('./screens/Dashboard'));
+const Categories = lazy(() => import('./screens/categories/Categories'));
 const Placeholder = lazy(() => import('./screens/Placeholder'));
 
 const r = (path: string, component: RouteDef['component']): RouteDef => ({ path: `/m/:slug${path}`, component, surface: 'seller' });
 
 export const sellerRoutes: RouteDef[] = [
-  r('', Placeholder),
+  r('', Dashboard),
   r('/create-store', Wizard),
+  r('/categories', Categories),
   r('/*', Placeholder),
 ];
