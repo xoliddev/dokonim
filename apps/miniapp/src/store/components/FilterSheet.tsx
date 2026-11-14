@@ -2,7 +2,7 @@
  * Filter sheet: price range, option facets (colour swatches, size chips) with counts, in stock, on sale, rating.
  * Edits a draft; the MainButton shows the live result count ("Show 128 products") for that draft.
  */
-import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useRef, useState, type Dispatch, type RefObject, type SetStateAction } from 'react';
 import { useQuery } from '../../api';
 import { useI18n } from '../../i18n';
 import { Button, Chip, Input, Sheet } from '../../ui';
@@ -25,6 +25,8 @@ export function FilterSheet(props: Props) {
   const [seq, setSeq] = useState(0);
   const facets = useQuery('store.facets', props.open ? { slug: props.slug, ...props.base, ...toListing(draft) } : null, { staleMs: 60_000 });
   const last = useRef<number | undefined>(undefined);
+  // the typed price is debounced into the draft; applying must not drop a value typed in the last 300 ms
+  const typedPrice = useRef<(() => Pick<Filters, 'min' | 'max'>) | null>(null);
   if (facets.data) last.current = facets.data.total;
   const total = facets.data?.total ?? last.current;
   useEffect(() => {
@@ -41,28 +43,29 @@ export function FilterSheet(props: Props) {
       title={t('store.filters')}
       maxHeight={0.88}
       footer={
-        <Button block size="lg" disabled={total === 0} loading={total == null} aria-busy={facets.loading || undefined} onClick={() => props.onApply(draft)}>
+        <Button block size="lg" disabled={total === 0} loading={total == null} aria-busy={facets.loading || undefined} onClick={() => props.onApply({ ...draft, ...(typedPrice.current?.() ?? {}) })}>
           {total == null ? t('common.loading') : t('store.showResults', { n: total })}
         </Button>
       }
     >
-      {props.open && <FilterBody key={seq} {...props} draft={draft} setDraft={setDraft} facets={facets.data} />}
+      {props.open && <FilterBody key={seq} {...props} draft={draft} setDraft={setDraft} facets={facets.data} typedPrice={typedPrice} />}
     </Sheet>
   );
 }
 
-function FilterBody({ value, draft, setDraft, facets: fd }: Props & { draft: Filters; setDraft: Dispatch<SetStateAction<Filters>>; facets: Facets | undefined }) {
+const parsePrice = (s: string) => (s.trim() === '' ? undefined : Math.max(0, Math.floor(Number(s.replace(/\D/g, '')) || 0)));
+
+function FilterBody({ value, draft, setDraft, facets: fd, typedPrice }: Props & { draft: Filters; setDraft: Dispatch<SetStateAction<Filters>>; facets: Facets | undefined; typedPrice: RefObject<(() => Pick<Filters, 'min' | 'max'>) | null> }) {
   const { t, money } = useI18n();
   const [min, setMin] = useState(value.min?.toString() ?? '');
   const [max, setMax] = useState(value.max?.toString() ?? '');
   // debounce typed prices into the draft so the live count follows
   useEffect(() => {
-    const id = setTimeout(() => {
-      const p = (s: string) => (s.trim() === '' ? undefined : Math.max(0, Math.floor(Number(s.replace(/\D/g, '')) || 0)));
-      setDraft((d) => ({ ...d, min: p(min), max: p(max) }));
-    }, 300);
+    typedPrice.current = () => ({ min: parsePrice(min), max: parsePrice(max) });
+    const id = setTimeout(() => setDraft((d) => ({ ...d, min: parsePrice(min), max: parsePrice(max) })), 300);
     return () => clearTimeout(id);
-  }, [min, max, setDraft]);
+  }, [min, max, setDraft, typedPrice]);
+  useEffect(() => () => void (typedPrice.current = null), [typedPrice]);
 
   const facets = { data: fd };
   const range = fd?.price;
