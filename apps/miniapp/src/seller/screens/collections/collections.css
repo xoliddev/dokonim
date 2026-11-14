@@ -1,0 +1,23 @@
+/* Collections */
+.cl-open { border: 0; background: transparent; padding: 0; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+.cl-pick { display: grid; gap: 8px; }
+.cl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 46vh; overflow-y: auto; padding: 2px; }
+.cl-item { position: relative; display: grid; gap: 3px; align-content: start; padding: 4px; border: 0; border-radius: 12px; background: var(--c-surface-raised); box-shadow: var(--e0);
+  color: var(--c-ink); font: inherit; text-align: left; cursor: pointer; }
+.cl-item.is-on { box-shadow: 0 0 0 2px var(--c-ink); }
+.cl-item img, .cl-noimg { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 9px; background: var(--c-surface-sunken); display: block; }
+.cl-item-title { font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cl-item-price { font-size: 10px; color: var(--c-ink-muted); }
+.cl-tick { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--c-ink); color: var(--c-surface); }
+.cl-rules { display: grid; gap: 8px; }
+.cl-rule { display: flex; gap: 6px; align-items: center; }
+.cl-select, .cl-val { height: 40px; border: 0; border-radius: 10px; padding: 0 10px; background: var(--c-surface-raised); box-shadow: inset 0 0 0 1px var(--c-outline); color: var(--c-ink);
+  font: 600 var(--fs-sm) / 1 var(--font-ui); min-width: 0; }
+.cl-select { flex: 1.2; }
+.cl-op { flex: 0 0 56px; }
+.cl-val { flex: 1; outline: 0; text-align: left; cursor: text; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cl-cat { cursor: pointer; }
+.cl-bool { display: grid; place-items: center; color: var(--c-success); }
+.cl-preview { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: var(--c-accent-soft); color: var(--c-accent-text); }
+.cl-sample { display: flex; gap: 6px; overflow: hidden; }
+.cl-sample img { width: 40px; height: 50px; object-fit: cover; border-radius: 7px; }

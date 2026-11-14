@@ -135,3 +135,9 @@ button.sl-row:active, a.sl-row:active { background: var(--c-surface-sunken); }
 .cp-drill { flex: none; display: inline-flex; align-items: center; gap: 2px; padding: 0 8px; border: 0; border-radius: 12px; background: var(--c-surface-sunken); color: var(--c-ink); cursor: pointer; }
 .cp-drill-n { font-size: var(--fs-xs); font-weight: 700; }
 .cp-foot { position: sticky; bottom: 0; padding-top: 6px; background: var(--c-surface-raised); }
+.pl-chev { color: var(--c-ink-muted); flex: none; }
+.pe-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
+.pe-2col > * { min-width: 0; }
+.pe-2col .field-box { min-width: 0; }
+.pe-2col .field-control { width: 100%; }
+.pe-wrap { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }

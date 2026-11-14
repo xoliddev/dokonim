@@ -1,0 +1,20 @@
+/* Promo codes as tickets: perforated stub + body */
+.pr-list { display: grid; gap: 10px; }
+.pr-ticket { position: relative; display: flex; border-radius: var(--r-card); background: var(--c-surface-raised); box-shadow: var(--e1); overflow: hidden; }
+.pr-stub { flex: none; width: 96px; display: grid; place-content: center; justify-items: center; gap: 6px; padding: 12px 6px; background: var(--c-ink); color: var(--c-surface);
+  border-right: 2px dashed var(--c-surface-raised); text-align: center; }
+.pr-ticket.is-muted .pr-stub, .pr-ticket.is-bad .pr-stub { background: var(--c-surface-sunken); color: var(--c-ink-muted); }
+.pr-value { font: 700 20px / 1.1 var(--font-display); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.pr-stub .sl-pill { font-size: 10px; }
+.pr-ticket::before, .pr-ticket::after { content: ''; position: absolute; left: 89px; width: 14px; height: 14px; border-radius: 50%; background: var(--c-surface); }
+.pr-ticket::before { top: -7px; }
+.pr-ticket::after { bottom: -7px; }
+.pr-main { flex: 1; min-width: 0; display: grid; gap: 4px; padding: 10px 12px; }
+.pr-code { justify-self: start; display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: transparent; color: var(--c-ink); cursor: pointer;
+  font: 700 var(--fs-lg) / 1.2 var(--font-display); letter-spacing: 0.04em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pr-sub { font-size: var(--fs-xs); color: var(--c-ink-muted); }
+.pr-actions { display: flex; align-items: center; gap: 2px; margin-left: -4px; }
+.pr-actions .sl-toggle-row { min-height: 36px; margin-right: auto; padding-left: 4px; }
+.pr-code-row { display: flex; gap: 8px; align-items: flex-end; }
+.pr-code-row .field { flex: 1; }
+.pr-code-row .sl-icon-btn { margin-bottom: 3px; }
