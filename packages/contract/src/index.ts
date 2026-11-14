@@ -281,7 +281,7 @@ export function buildRequest(name: RouteName, input: Record<string, unknown>): {
 
 /** Merges params/query/body back into one input object (used by the Fastify adapter). */
 export function mergeRequest(params: Record<string, string>, query: Record<string, unknown>, body: unknown): Record<string, unknown> {
-  let q: Record<string, unknown> = {};
+  let q: Record<string, unknown>;
   if (typeof query.input === 'string') {
     try {
       q = JSON.parse(query.input) as Record<string, unknown>;

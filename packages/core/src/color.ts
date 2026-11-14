@@ -125,7 +125,7 @@ export function neutralRamp(brand: string): string[] {
 }
 
 export function mixHue(base: number, toward: number, amount: number): number {
-  let d = ((toward - base + 540) % 360) - 180;
+  const d = ((toward - base + 540) % 360) - 180;
   return (base + d * amount + 360) % 360;
 }
 

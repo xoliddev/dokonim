@@ -3,7 +3,7 @@
  */
 import {
   BUSINESS_TYPES, canAssignRole, checkStoreSlug, DEFAULT_TOKENS, defaultSections, DomainError, encryptSecret, isUuid, itemSlug,
-  nextPosition, pathFor, permissionsOf, pick, PRESETS, presetsFor, ROLES, sanitizeSections, sanitizeTokens, sha256Hex, shortId,
+  pathFor, permissionsOf, pick, PRESETS, presetsFor, ROLES, sanitizeSections, sanitizeTokens, sha256Hex, shortId,
   slugAlternatives, slugify, toHex, uuidv7, type BusinessType, type L10n, type Locale, type ProviderId, type Role, type Section,
   type TelegramUser, type ThemeTokens,
 } from '@dokonim/core';

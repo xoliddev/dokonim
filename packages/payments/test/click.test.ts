@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { md5 } from '@dokonim/core';
 import { CLICK_ERROR, ClickWebhookHandler, MemoryLedger, clickConfirmId, clickPrepareId, clickSignString, sandboxConfig, stableNumericId } from '../src';
 import type { ProviderConfig } from '@dokonim/core';
-import { AMOUNT, NOW, ORDER_ID, PAYMENT_ID, liveConfig, setup } from './helpers';
+import { NOW, ORDER_ID, PAYMENT_ID, liveConfig, setup } from './helpers';
 
 const cfg = sandboxConfig('click');
 const SECRET = 'sandbox-click-secret';

@@ -92,9 +92,9 @@ describe.each(ADAPTERS)('webhooks over HTTP on $name', ({ make }) => {
   });
 
   it('Uzum routes reach the protocol handler verbatim and only known actions are routed', async () => {
-    // every store gets a (disabled) sandbox Uzum config; an unauthenticated request is answered by the handler itself
+    // every store gets a sandbox Uzum config that starts disabled; webhooks for a disabled provider are ignored
     const res = await api.app.inject({ method: 'POST', url: `/hooks/uzum/${seed.store.id}/check`, headers: { 'content-type': 'application/json' }, payload: '{"serviceId":1}' });
-    expect([400, 401]).toContain(res.statusCode);
+    expect(res.statusCode).toBe(404);
     const ghost = await api.app.inject({ method: 'POST', url: '/hooks/uzum/0190a000-0000-7000-8000-000000000000/check', headers: { 'content-type': 'application/json' }, payload: '{}' });
     expect(ghost.statusCode).toBe(404);
     expect(ghost.json()).toEqual({ error: 'provider not configured' });

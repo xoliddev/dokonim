@@ -95,7 +95,7 @@ abstract class Simulator {
   protected async exchange(label: string, req: RawWebhookRequest, parsedBody: unknown, ledger: PaymentLedgerPort = this.ledger): Promise<{ res: RawWebhookResponse; json: unknown }> {
     this.emit({ direction: 'request', label, body: parsedBody, raw: req.body });
     const res = await this.handler.handle(req, this.config, ledger);
-    let json: unknown = null;
+    let json: unknown;
     try {
       json = res.body ? JSON.parse(res.body) : null;
     } catch {

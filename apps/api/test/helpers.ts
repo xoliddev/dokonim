@@ -2,7 +2,6 @@
  * HTTP test harness: the db package's adapter-parity setup (PGlite always, Postgres when TEST_DATABASE_URL is set)
  * wrapped in the real Fastify app, driven with `inject`. Users log in with genuinely signed initData.
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Bot } from 'grammy';
 import { signInitData, type TelegramUser } from '@dokonim/core';
 import { buildRequest, type RouteName } from '@dokonim/contract';

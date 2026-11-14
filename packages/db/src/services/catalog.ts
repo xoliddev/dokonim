@@ -472,7 +472,7 @@ export function catalogService(s: Ctx) {
           const [cyc] = await tx.query<{ c: boolean }>('select $1::ltree <@ $2::ltree as c', [parent.path, node.path]);
           if (cyc?.c) throw new DomainError('CATEGORY_CYCLE');
         }
-        let slug = node.slug;
+        let slug: string;
         if (node.parentId !== (parent?.id ?? null)) {
           slug = uniqueSiblingSlug(node.slug, await siblingSlugs(tx, m.store.id, parent?.id ?? null, node.id));
           await tx.query(`update categories set path = case when nlevel(path) > nlevel($2::ltree) then $3::ltree || subpath(path, nlevel($2::ltree)) else $3::ltree end where store_id = $1 and path <@ $2::ltree`, [m.store.id, node.path, newPath]);
@@ -490,7 +490,7 @@ export function catalogService(s: Ctx) {
         const node = await getCategory(tx, m.store.id, i.id);
         const sid = m.store.id;
         const subtreeProducts = await tx.query<{ id: string }>(`select p.id from products p join categories c on c.id = p.category_id where p.store_id = $1 and c.path <@ $2::ltree`, [sid, node.path]);
-        let affected = 0;
+        let affected: number;
         if (i.strategy.kind === 'reparent_children') {
           const parent = node.parentId ? await getCategory(tx, sid, node.parentId) : null;
           const children = await tx.query<{ id: string; slug: string; path: string }>('select id, slug, path::text as path from categories where store_id = $1 and parent_id = $2 order by position', [sid, node.id]);
