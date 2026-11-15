@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_TOKENS, FONT_PAIRS, sanitizeTokens, type ThemeTokens } from '@dokonim/core';
 import type { MessageKey } from '@dokonim/i18n';
-import { useMutation, useQuery } from '../../../api/provider';
+import { useApi, useMutation, useQuery } from '../../../api/provider';
 import { useI18n } from '../../../i18n';
 import type { RouteProps } from '../../../router/router';
 import { haptic, useMainButton } from '../../../telegram/shim';
@@ -63,17 +63,34 @@ export default function ThemeEditor(_: RouteProps) {
   }, [data]);
 
   // debounced draft autosave
+  const api = useApi().api;
+  const draftInput = () => (tokens && s.storeId && data ? { storeId: s.storeId, tokens: tokens as never, sections: (data.draft?.sections ?? data.published?.sections ?? []) as never, preset } : null);
+  const snapOf = (x: { tokens: unknown; preset: unknown }) => JSON.stringify([x.tokens, x.preset]);
+  const latest = useRef({ snap: '', saved, input: draftInput });
+  latest.current = { snap: snapOf({ tokens, preset }), saved, input: draftInput };
   useEffect(() => {
     if (!tokens || saved || !s.storeId || !data) return;
     const id = setTimeout(() => {
+      const input = draftInput()!;
+      const snap = snapOf(input);
       saveDraft
-        .run({ storeId: s.storeId!, tokens: tokens as never, sections: (data.draft?.sections ?? data.published?.sections ?? []) as never, preset })
-        .then(() => setSaved(true))
+        .run(input)
+        // a change made while this save was in flight is not saved yet: leave it to its own (still pending) timer
+        .then(() => latest.current.snap === snap && setSaved(true))
         .catch((e) => toastError(e, t));
     }, 700);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokens, preset, saved]);
+  // leaving within the debounce window (or mid-save) still persists the last change
+  useEffect(
+    () => () => {
+      const input = latest.current.saved ? null : latest.current.input();
+      if (input) void api['admin.theme.saveDraft'](input).catch(() => {});
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   const set = <K extends Key>(k: K, v: ThemeTokens[K]) => {
     haptic.selection();
