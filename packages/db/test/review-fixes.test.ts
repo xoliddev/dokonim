@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sqlLedger } from '../src';
-import { ADAPTERS, ADDRESS, seedStore, setup, type H } from './harness';
+import { ADAPTERS, ADDRESS, seedStore, setup, variantProduct, type H } from './harness';
 
 /** Regression tests for the backend review findings. */
 describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
@@ -62,5 +62,18 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     h.clock.advance(31 * 60_000);
     await h.m['jobs.expireReservations']({} as never, {} as never);
     expect(await h.m['orders.get'](buyer, { slug: slug(), id: order.id })).toMatchObject({ status: 'paid', paymentStatus: 'paid' });
+  });
+
+  it('saving a product applies only the editor stock change, keeping sales made meanwhile (#17/#26)', async () => {
+    const input = variantProduct(ctx.store.id, null, { title: 'Stock base', stock: 5 });
+    const p = await h.m['admin.products.save'](ctx.owner, input);
+    const vid = input.variants[0]!.id;
+    await h.m['admin.inventory.adjust'](ctx.owner, { storeId: ctx.store.id, variantId: vid, delta: -1, reason: 'adjustment' }); // a sale while the editor is open
+    const again = (stock: number) => ({ ...input, id: p.id, variants: input.variants.map((v) => ({ ...v, stock: v.id === vid ? stock : v.stock, stockBase: 5 })) });
+    await h.m['admin.products.save'](ctx.owner, again(5));
+    const onHand = async () => (await h.m['admin.products.get'](ctx.owner, { storeId: ctx.store.id, id: p.id })).variants.find((v) => v.id === vid)!.stock;
+    expect(await onHand()).toBe(4);
+    await h.m['admin.products.save'](ctx.owner, again(7));
+    expect(await onHand()).toBe(6);
   });
 });

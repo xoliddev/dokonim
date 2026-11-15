@@ -61,7 +61,7 @@ const productInput = sid({
   options: z.array(z.object({ id: uuid, name: l10n, display: z.enum(['chips', 'swatch', 'image']), values: z.array(z.object({ id: uuid, label: l10n, swatchHex: z.string().max(9).nullish() })).min(1).max(100) })).max(3),
   variants: z.array(z.object({
     id: uuid, optionValueIds: z.array(uuid).max(3), sku: z.string().max(64), barcode: z.string().max(64), price: money, compareAtPrice: money.nullable(), costPrice: money.nullable(),
-    weightG: z.number().int().min(0).max(1_000_000), stock: z.number().int().min(0).max(10_000_000), lowStockThreshold: z.number().int().min(0).max(100_000),
+    weightG: z.number().int().min(0).max(1_000_000), stock: z.number().int().min(0).max(10_000_000), stockBase: z.number().int().min(0).max(10_000_000).optional(), lowStockThreshold: z.number().int().min(0).max(100_000),
     trackInventory: z.boolean(), allowBackorder: z.boolean(), ikpuCode: z.string().max(20).nullish(), packageCode: z.string().max(20).nullish(), vatPercent: z.number().min(0).max(100).nullish(), mediaUrl: z.string().max(1_500_000).nullish(),
   })).min(1).max(2048),
 });

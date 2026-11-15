@@ -144,6 +144,11 @@ export interface ProductInput {
     costPrice: number | null;
     weightG: number;
     stock: number;
+    /**
+     * The on_hand the editor loaded. When sent, only the seller's change (stock − stockBase) is applied to the live
+     * level, so sales and restocks made while the editor was open are kept. Without it `stock` is absolute (legacy).
+     */
+    stockBase?: number;
     lowStockThreshold: number;
     trackInventory: boolean;
     allowBackorder: boolean;
@@ -380,15 +385,16 @@ export function catalogService(s: Ctx) {
           [store.id, v.id, id, v.optionValueIds, (v.sku ?? '').slice(0, 64), (v.barcode ?? '').slice(0, 64), price, compare, v.costPrice != null ? roundSom(v.costPrice) : null, Math.max(0, Math.round(v.weightG || 0)),
             v.ikpuCode || null, v.packageCode || null, v.vatPercent ?? null, single, i, v.mediaUrl || null, v.trackInventory !== false, !!v.allowBackorder],
         );
-        const [lvl] = await tx.query<{ onHand: number; reserved: number }>('select on_hand, reserved from inventory_levels where variant_id = $1', [v.id]);
+        const [lvl] = await tx.query<{ onHand: number; reserved: number }>('select on_hand, reserved from inventory_levels where variant_id = $1 for update', [v.id]);
         if (!lvl) {
           await tx.query('insert into inventory_levels (store_id, variant_id, on_hand, reserved, low_stock_threshold) values ($1,$2,$3,0,$4)', [store.id, v.id, v.stock, Math.max(0, v.lowStockThreshold ?? 3)]);
           if (v.stock) await movement(tx, store.id, v.id, v.stock, 'initial', actor, 'product', id, '');
         } else {
-          if (v.stock < lvl.reserved) throw new DomainError('VALIDATION', 'Stock cannot go below reserved units', { variantId: v.id, reserved: lvl.reserved });
-          if (v.stock !== lvl.onHand) {
-            await tx.query('update inventory_levels set on_hand = $2 where variant_id = $1', [v.id, v.stock]);
-            await movement(tx, store.id, v.id, v.stock - lvl.onHand, 'adjustment', actor, 'product', id, 'editor');
+          const target = v.stockBase != null && Number.isInteger(v.stockBase) ? lvl.onHand + (v.stock - v.stockBase) : v.stock;
+          if (target !== lvl.onHand) {
+            if (target < lvl.reserved || target < 0) throw new DomainError('VALIDATION', 'Stock cannot go below reserved units', { variantId: v.id, reserved: lvl.reserved });
+            await tx.query('update inventory_levels set on_hand = $2 where variant_id = $1', [v.id, target]);
+            await movement(tx, store.id, v.id, target - lvl.onHand, 'adjustment', actor, 'product', id, 'editor');
           }
           await tx.query('update inventory_levels set low_stock_threshold = $2 where variant_id = $1', [v.id, Math.max(0, v.lowStockThreshold ?? 3)]);
         }
