@@ -69,6 +69,9 @@ export function fakeBackend(over: Partial<BotBackend> = {}): BotBackend & { [K i
       seen.add(id);
       return false;
     }),
+    forgetUpdate: vi.fn(async (id: number) => {
+      seen.delete(id);
+    }),
     upsertUser: vi.fn(async (u: { languageCode?: string }) => ({ locale: (u.languageCode === 'ru' ? 'ru' : u.languageCode === 'en' ? 'en' : 'uz') as Locale })),
     saveVerifiedPhone: vi.fn(async () => undefined),
     orderAction: vi.fn(async () => ({ ok: true as const, message: null, status: 'confirmed' })),

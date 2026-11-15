@@ -225,12 +225,21 @@ export function createBot(config: BotConfig, backend: BotBackend): Bot {
   };
 
   // Logs and swallows handler errors so webhook mode (where bot.catch does not run) still gets structured logs.
-  const c = bot.errorBoundary(onError);
+  // A failed successful_payment is rethrown instead: the webhook then answers 500 and Telegram redelivers it.
+  const c = bot.errorBoundary((err) => {
+    onError(err);
+    if (err.ctx.message?.successful_payment) throw err;
+  });
 
-  // 1) Dedupe by update_id — first, before any side effect.
+  // 1) Dedupe by update_id — first, before any side effect. A failed update is forgotten so a redelivery runs again.
   c.use(async (ctx, next) => {
     if (await backend.seenUpdate(ctx.update.update_id)) return;
-    await next();
+    try {
+      await next();
+    } catch (e) {
+      await backend.forgetUpdate?.(ctx.update.update_id).catch(() => undefined);
+      throw e;
+    }
   });
 
   // 2) Commands

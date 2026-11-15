@@ -229,6 +229,12 @@ export function manageService(s: Ctx) {
     'auth.seenUpdate': async (_a: Actor, i: { updateId: number }) =>
       s.tx(null, SYSTEM, async (tx) => (await tx.query('insert into processed_updates (update_id) values ($1) on conflict do nothing returning update_id', [i.updateId])).length === 0),
 
+    'auth.forgetUpdate': async (_a: Actor, i: { updateId: number }) =>
+      s.tx(null, SYSTEM, async (tx) => {
+        await tx.query('delete from processed_updates where update_id = $1', [i.updateId]);
+        return { ok: true };
+      }),
+
     'auth.issueRefresh': async (_a: Actor, i: { userId: string; familyId?: string; ttlDays?: number }) =>
       s.tx(null, SYSTEM, async (tx) => {
         const raw = new Uint8Array(32);

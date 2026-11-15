@@ -47,6 +47,8 @@ export interface SuccessfulPaymentInput {
 export interface BotBackend {
   /** true if this update_id was already processed → skip. */
   seenUpdate(updateId: number): Promise<boolean>;
+  /** Drops the dedupe mark of an update whose handler failed, so Telegram's redelivery is processed. */
+  forgetUpdate?(updateId: number): Promise<void>;
   upsertUser(u: BotUserInput): Promise<{ locale: Locale }>;
   /** Called only when contact.user_id === from.id; phone is normalised to +digits. */
   saveVerifiedPhone(telegramId: number, phone: string): Promise<void>;

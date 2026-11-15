@@ -32,6 +32,9 @@ export function createBotBackend(backend: Backend, opts: BotBackendOptions = {})
 
   return {
     seenUpdate: (updateId) => m['auth.seenUpdate'](SYSTEM, { updateId }),
+    forgetUpdate: async (updateId) => {
+      await m['auth.forgetUpdate'](SYSTEM, { updateId });
+    },
 
     async upsertUser(u) {
       const { user } = await backend.upsertUser({

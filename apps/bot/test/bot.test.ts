@@ -78,6 +78,15 @@ describe('dedupe', () => {
     expect(of('sendMessage')).toHaveLength(1);
   });
 
+  it('a successful_payment that fails is rethrown and processed again on redelivery', async () => {
+    const { bot, backend } = setup();
+    backend.successfulPayment.mockRejectedValueOnce(new Error('deadlock detected'));
+    await expect(bot.handleUpdate(successfulPaymentUpdate(9200))).rejects.toThrow();
+    expect(backend.forgetUpdate).toHaveBeenCalledWith(9200);
+    await bot.handleUpdate(successfulPaymentUpdate(9200));
+    expect(backend.successfulPayment).toHaveBeenCalledTimes(2);
+  });
+
   it('a duplicate successful_payment does not call the backend twice', async () => {
     const { bot, backend } = setup();
     await bot.handleUpdate(successfulPaymentUpdate(9100));

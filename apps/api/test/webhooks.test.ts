@@ -140,6 +140,8 @@ describe.each(ADAPTERS)('webhooks over HTTP on $name', ({ make }) => {
     expect(await bb.orderAction(999_999_999, order.id, 'confirm')).toMatchObject({ ok: false, code: 'FORBIDDEN' });
     expect(await bb.seenUpdate(1_000_001)).toBe(false);
     expect(await bb.seenUpdate(1_000_001)).toBe(true);
+    await bb.forgetUpdate!(1_000_001);
+    expect(await bb.seenUpdate(1_000_001)).toBe(false);
     expect((await bb.upsertUser({ telegramId: 31337, firstName: 'Ali', languageCode: 'en' })).locale).toBe('en');
     await bb.saveVerifiedPhone(31337, '+998901112233');
   });

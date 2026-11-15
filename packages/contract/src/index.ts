@@ -221,6 +221,7 @@ export const ROUTES = {
   'auth.rotateRefresh': r('POST', '-', 'internal', any),
   'auth.savePhone': r('POST', '-', 'internal', any),
   'auth.seenUpdate': r('POST', '-', 'internal', any),
+  'auth.forgetUpdate': r('POST', '-', 'internal', any),
   'bot.inlineProducts': r('POST', '-', 'internal', any),
   'bot.orderAction': r('POST', '-', 'internal', any),
   'hooks.handle': r('POST', '-', 'internal', any),
