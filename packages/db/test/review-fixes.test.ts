@@ -189,4 +189,18 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     await h.m['cart.setItem'](buyer, { slug: slug(), variantId: variant(2).id, qty: 1 });
     expect((await h.m['cart.applyPromo'](buyer, { slug: slug(), code: 'WELCOME' })).promo).toMatchObject({ status: 'applied' });
   });
+
+  it('weight-based shipping ignores unavailable cart lines (#23)', async () => {
+    const w = await seedStore(h, 'weight-rf');
+    await h.db.query(`update shipping_rates set calc = 'weight', amount = 2000000, per_kg = 500000 where store_id = $1`, [w.store.id]);
+    const heavyIn = variantProduct(w.store.id, null, { title: 'Ogʻir', stock: 5 });
+    heavyIn.variants = heavyIn.variants.map((v) => ({ ...v, weightG: 5000 }));
+    const heavy = await h.m['admin.products.save'](w.owner, heavyIn);
+    const buyer = await h.user('Weight');
+    await h.m['cart.setItem'](buyer, { slug: 'weight-rf', variantId: heavy.variants[0]!.id as string, qty: 1 });
+    await h.m['cart.setItem'](buyer, { slug: 'weight-rf', variantId: w.product.variants[0]!.id as string, qty: 1 });
+    await h.m['admin.products.bulk'](w.owner, { storeId: w.store.id, ids: [heavy.id], action: 'archive' });
+    const q = await h.m['checkout.quote'](buyer, { slug: 'weight-rf', region: 'UZ-TK' });
+    expect(q.shippingOptions.find((o) => o.type === 'courier')!.amount).toBe(2_000_000);
+  });
 });

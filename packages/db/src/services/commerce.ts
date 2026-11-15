@@ -592,7 +592,8 @@ export function commerceService(s: Ctx) {
 
   async function quote(tx: Sql, store: StoreRow, uid: string, i: { methodId?: string | null; region?: string | null; district?: string | null }) {
     const base = await buildCart(s, tx, store, uid, { shipping: null });
-    const weight = base.items.reduce((a, it) => a + it.qty * it.weightG, 0);
+    // only the lines that get ordered: unavailable (archived/draft) lines stay in the cart but are not shipped
+    const weight = base.items.filter((it) => !it.warnings.includes('unavailable')).reduce((a, it) => a + it.qty * it.weightG, 0);
     const options = base.isDigital ? [] : await shippingOptions(tx, store, i.region ?? 'UZ-TK', i.district ?? null, weight, s.now());
     const method = options.find((o) => o.methodId === i.methodId) ?? null;
     const cart = method ? await buildCart(s, tx, store, uid, { shipping: { amount: method.amount, freeOver: method.freeOver } }) : base;
