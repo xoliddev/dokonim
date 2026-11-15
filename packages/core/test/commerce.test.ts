@@ -79,6 +79,17 @@ describe('pricing pipeline — golden cases', () => {
     expect(r2.promo?.reason).toBe('PROMO_NOT_COMBINABLE');
   });
 
+  it('an automatic order discount skips flash-sale lines unless combines.product, like a code does', () => {
+    const flash = d({ id: 'f', kind: 'flash_sale', valueType: 'percent', value: 20, appliesTo: { type: 'products', ids: ['p-buds'] } });
+    const auto = d({ id: 'a', kind: 'automatic', valueType: 'percent', value: 5 });
+    const lines = [line('buds', 50_000_000, 1), line('case', 10_000_000, 1)];
+    const r = priceCart({ lines, discounts: [flash, auto], now });
+    expect(r.productDiscountTotal).toBe(10_000_000);
+    expect(r.orderDiscountTotal).toBe(500_000); // 5% of the case only
+    const stacking = priceCart({ lines, discounts: [flash, { ...auto, combines: { ...auto.combines, product: true } }], now });
+    expect(stacking.orderDiscountTotal).toBe(2_500_000); // 5% of 40 000 000 + 10 000 000
+  });
+
   it('free shipping: threshold and BEPULYETKAZISH code', () => {
     const r = priceCart({ lines: [line('a', 40_000_000, 1)], discounts: [], shipping: { amount: 2_500_000, freeOver: 100_000_000 }, now });
     expect(r.freeShippingRemaining).toBe(60_000_000);

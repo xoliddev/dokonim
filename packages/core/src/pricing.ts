@@ -245,7 +245,8 @@ export function priceCart(input: PricingInput): PricingResult {
   // ── 2. order-level automatic discounts (best single, plus mutually combinable ones)
   type OrderApplied = { d: DiscountRule; amount: Minor; weights: number[] };
   let orderApplied: OrderApplied[] = [];
-  const orderBase = (d: DiscountRule) => lines.map((l, li) => (scopeMatches(d.appliesTo, l) ? netOf(li) : 0));
+  // same stacking rule as an order-level code: lines that already carry a product discount count only if combines.product
+  const orderBase = (d: DiscountRule) => lines.map((l, li) => (scopeMatches(d.appliesTo, l) && (d.combines.product || productStacks[li]!.length === 0) ? netOf(li) : 0));
   const autoOrder = autos
     .filter((d) => discountTarget(d) === 'order' && !conditionFailure(d, merchAfterProduct(), input.customer))
     .map((d) => {
