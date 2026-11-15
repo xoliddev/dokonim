@@ -282,6 +282,9 @@ export async function applyOrderEvent(
   const paid = o.paymentStatus === 'paid';
   const t = transitionOrder(o.status, ev, actorKind, o.fulfilmentKind, { paid });
   const now = s.now().toISOString();
+  // an order cancelled before it was paid or confirmed does not count as the customer's order (first-order promos)
+  if (ev === 'cancel' && !paid && (o.status === 'pending_payment' || o.status === 'awaiting_confirmation') && o.customerId)
+    await tx.query('update customers set orders_count = greatest(0, orders_count - 1) where id = $1', [o.customerId]);
   if (ev === 'deliver' && o.status === 'ready_for_pickup' && actorKind === 'staff') {
     const code = (data.pickupCode ?? '').replace(/\D/g, '');
     if (!code || !o.pickupCodeHash || (await sha256Hex(`${o.id}:${code}`)) !== o.pickupCodeHash)

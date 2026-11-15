@@ -179,4 +179,14 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     await expect(h.m['platform.suspend'](admin, { storeId: store.id, suspended: true })).rejects.toMatchObject({ code: 'INVALID_TRANSITION' });
     expect(await status()).toBe('closed');
   });
+
+  it('a first order that expired unpaid does not use up a first-order promo (#22)', async () => {
+    await h.m['admin.discounts.save'](ctx.owner, { storeId: ctx.store.id, kind: 'code', title: 'Xush kelibsiz', code: 'WELCOME', valueType: 'percent', value: 10, appliesTo: { type: 'all' }, conditions: { firstOrder: true }, combines: { order: true, product: true, shipping: true } });
+    const { buyer, order } = await place('payme', 2, 1, 'WELCOME');
+    h.clock.advance(31 * 60_000);
+    await h.m['jobs.expireReservations']({} as never, {} as never);
+    expect((await h.m['orders.get'](buyer, { slug: slug(), id: order.id })).status).toBe('cancelled');
+    await h.m['cart.setItem'](buyer, { slug: slug(), variantId: variant(2).id, qty: 1 });
+    expect((await h.m['cart.applyPromo'](buyer, { slug: slug(), code: 'WELCOME' })).promo).toMatchObject({ status: 'applied' });
+  });
 });
