@@ -22,6 +22,18 @@ export interface Coll { id: string; title: Record<string, string>; kind: 'manual
 const OPS: Record<Field, Op[]> = { tag: ['eq'], price: ['lt', 'gt'], category: ['in_subtree'], on_sale: ['eq'], created_within_days: ['lt'], in_stock: ['eq'], vendor: ['eq'], title: ['contains'] };
 const DEFAULT: Record<Field, Rule['value']> = { tag: '', price: 0, category: '', on_sale: true, created_within_days: 14, in_stock: true, vendor: '', title: '' };
 
+/**
+ * The name field edits the UI locale's translation only (like product titles). Untouched, the stored title is kept
+ * as is, so a ru/en seller flipping "hidden" neither copies a fallback translation around nor changes the uz name
+ * (and with it the slug). A new collection also gets the name as its uz title, the default.
+ */
+export function collectionTitle(orig: Record<string, string> | null, shown: string, name: string, locale: string): Record<string, string> {
+  const v = name.trim();
+  if (!orig) return { uz: v, [locale]: v };
+  if (v === shown.trim()) return orig;
+  return { ...orig, [locale]: v };
+}
+
 export function CollectionForm({ open, coll, storeId, nodes, onClose }: { open: boolean; coll: Coll | null; storeId: string; nodes: CatNode[]; onClose: () => void }) {
   const { t } = useI18n();
   return (
@@ -32,8 +44,9 @@ export function CollectionForm({ open, coll, storeId, nodes, onClose }: { open: 
 }
 
 function Body({ coll, storeId, nodes, onClose }: { coll: Coll | null; storeId: string; nodes: CatNode[]; onClose: () => void }) {
-  const { t, l, money } = useI18n();
-  const [name, setName] = useState(coll ? l(coll.title) : '');
+  const { t, l, money, locale } = useI18n();
+  const shown = coll ? l(coll.title) : ''; // may be a fallback from another locale
+  const [name, setName] = useState(shown);
   const [kind, setKind] = useState<Coll['kind']>(coll?.kind ?? 'manual');
   const [match, setMatch] = useState<'all' | 'any'>(coll?.rules?.match ?? 'all');
   const [rules, setRules] = useState<Rule[]>(coll?.rules?.rules?.length ? coll.rules.rules : [{ field: 'on_sale', op: 'eq', value: true }]);
@@ -61,7 +74,7 @@ function Body({ coll, storeId, nodes, onClose }: { coll: Coll | null; storeId: s
     if (!name.trim()) return haptic.notify('error');
     setApiErr(null);
     try {
-      const title = { ...(coll?.title ?? {}), uz: name.trim() };
+      const title = collectionTitle(coll?.title ?? null, shown, name, locale);
       await save.run({ storeId, ...(coll ? { id: coll.id } : {}), title, kind, isHidden: hidden, ...(kind === 'manual' ? { productIds: [...picked] } : { rules: { match, rules } }) });
       haptic.notify('success');
       toast.success(t('seller.colSaved'));
