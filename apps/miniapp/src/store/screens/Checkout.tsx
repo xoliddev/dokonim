@@ -102,6 +102,8 @@ export default function Checkout({ params }: RouteProps) {
         pickupPointId: method?.type === 'pickup_point' ? pickupId : null,
         paymentMethod: pay as 'cod',
         note: note.trim() || undefined,
+        // the total the buyer is looking at; the server refuses with PRICE_CHANGED if it moved since this quote
+        expectedTotal: quote ? quote.cart.pricing.total : undefined,
       });
       placedOrder.current = r.order.id;
       const na = r.nextAction;

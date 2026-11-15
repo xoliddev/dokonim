@@ -42,7 +42,7 @@ export function fromAggregate(raw: unknown, locale = 'uz'): ProductDraft {
     })),
     variants: (a.variants ?? []).map<VariantDraft>((v) => ({
       id: v.id, optionValueIds: v.optionValueIds, sku: v.sku ?? '', barcode: v.barcode ?? '', price: v.price, compareAtPrice: v.compareAtPrice, costPrice: v.costPrice,
-      stock: v.stock ?? 0, lowStockThreshold: v.lowStockThreshold ?? 3, trackInventory: v.trackInventory, allowBackorder: v.allowBackorder, weightG: v.weightG ?? 0, mediaUrl: v.mediaUrl,
+      stock: v.stock ?? 0, stockBase: v.stock ?? 0, lowStockThreshold: v.lowStockThreshold ?? 3, trackInventory: v.trackInventory, allowBackorder: v.allowBackorder, weightG: v.weightG ?? 0, mediaUrl: v.mediaUrl,
     })),
     brand: a.brand ?? '',
     vendorCode: a.vendorCode ?? '',
@@ -77,7 +77,7 @@ export function toInput(d: ProductDraft, storeId: string, locale = 'uz') {
     })),
     variants: d.variants.map((v) => ({
       id: v.id, optionValueIds: v.optionValueIds, sku: v.sku.trim(), barcode: v.barcode.trim(), price: v.price ?? 0, compareAtPrice: v.compareAtPrice, costPrice: v.costPrice,
-      weightG: v.weightG, stock: v.stock, lowStockThreshold: v.lowStockThreshold, trackInventory: v.trackInventory, allowBackorder: v.allowBackorder, mediaUrl: v.mediaUrl,
+      weightG: v.weightG, stock: v.stock, stockBase: v.stockBase, lowStockThreshold: v.lowStockThreshold, trackInventory: v.trackInventory, allowBackorder: v.allowBackorder, mediaUrl: v.mediaUrl,
     })),
   };
 }

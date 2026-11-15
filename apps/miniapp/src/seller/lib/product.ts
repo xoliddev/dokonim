@@ -15,6 +15,8 @@ export interface OptionValue { id: string; label: string; swatchHex: string | nu
 export interface OptionDraft { id: string; name: string; display: 'chips' | 'swatch'; values: OptionValue[]; orig?: Record<string, string> }
 export interface VariantDraft {
   id: string;
+  /** stock as loaded from the server; lets the save apply only this editor's delta */
+  stockBase?: number;
   optionValueIds: string[];
   sku: string;
   barcode: string;

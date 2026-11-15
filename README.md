@@ -182,11 +182,11 @@ The API reads its configuration from the environment and does not load `.env` by
 ```bash
 cp .env.example .env                   # then set DATABASE_URL, PUBLIC_URL, MINIAPP_URL, JWT_SECRET, CREDENTIALS_KEK
 npx tsx --env-file=.env apps/api/src/main.ts      # migrations run on boot; GET /healthz, GET /v1/openapi.json
-VITE_API_URL=http://localhost:8080 npm run dev    # Mini App on http://localhost:5173 against the API
+npm run dev                                       # Mini App on http://localhost:5173, /v1 proxied to the API
 ```
 
-The API listens on port 8080 by default, while the Mini App dev server points at `http://localhost:3000` unless
-`VITE_API_URL` is set. Login uses Telegram initData, so outside the demo the Mini App has to be opened from your bot.
+The API listens on port 8080 by default. The Mini App dev server proxies `/v1` to `http://localhost:8080` (override with `API_PROXY_TARGET`), or calls `VITE_API_URL` directly when it is set.
+Login uses Telegram initData, so outside the demo the Mini App has to be opened from your bot.
 `npm run migrate -w @dokonim/api` runs the migrations on their own.
 
 ### Docker
@@ -231,7 +231,7 @@ Build-time and test variables:
 
 | Variable | Used by | Purpose |
 |---|---|---|
-| `VITE_API_URL` | Mini App build | API base URL. Default `http://localhost:3000` in dev and `https://api.dokonim.uz` in a production build |
+| `VITE_API_URL` | Mini App build | API base URL. Empty in dev (same origin, proxied by Vite) and `https://api.dokonim.uz` in a production build |
 | `VITE_TARGET` | Mini App build | `http` (default) or `demo`; `--mode demo` forces `demo` |
 | `POSTGRES_PASSWORD` | `docker-compose.yml` | password of the compose database (default `dokonim`) |
 | `TEST_DATABASE_URL` | vitest `db` project | also runs the database suites against real PostgreSQL, not only PGlite |
