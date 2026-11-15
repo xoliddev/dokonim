@@ -5,7 +5,7 @@ import {
 } from '@dokonim/core';
 import { json, type Sql } from '../client';
 import { ensureCategoryPath, refreshProduct } from './catalog';
-import { applyOrderEvent, requireRefundFor } from './commerce';
+import { applyOrderEvent, maskContact, requireRefundFor } from './commerce';
 import { SYSTEM, type Actor, type Ctx } from './ctx';
 
 const REVENUE_STATUSES = `('paid','confirmed','packing','shipped','ready_for_pickup','delivered','completed')`;
@@ -45,7 +45,8 @@ export function insightsService(s: Ctx) {
           unanswered: ((await tx.query<{ n: number }>(`select count(*)::int as n from questions q where q.store_id = $1 and q.status = 'published' and not exists (select 1 from answers a where a.question_id = q.id)`, [i.storeId]))[0]?.n ?? 0),
           newReviews: ((await tx.query<{ n: number }>(`select count(*)::int as n from reviews where store_id = $1 and owner_reply is null and created_at >= $2`, [i.storeId, week.toISOString()]))[0]?.n ?? 0),
         };
-        const recent = await tx.query(`select id, number, status, total, contact, placed_at, payment_method from orders where store_id = $1 order by placed_at desc limit 5`, [i.storeId]);
+        const recentRows = await tx.query<{ contact: unknown }>(`select id, number, status, total, contact, placed_at, payment_method from orders where store_id = $1 order by placed_at desc limit 5`, [i.storeId]);
+        const recent = can(m.role, 'orders.manage') ? recentRows : recentRows.map(maskContact);
         const [counts] = await tx.query<{ products: number; drafts: number }>(`select count(*) filter (where status = 'active')::int as products, count(*) filter (where status = 'draft')::int as drafts from products where store_id = $1`, [i.storeId]);
         return {
           today: { revenue: showMoney ? (t?.revenue ?? 0) : null, orders: t?.orders ?? 0, yesterdayRevenue: showMoney ? (y?.revenue ?? 0) : null, conversion: views?.n ? (buys?.n ?? 0) / views.n : 0 },

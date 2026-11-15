@@ -3,7 +3,7 @@
  * (reservations, stock, refunds, pickup codes, notifications) inside one tenant transaction.
  */
 import {
-  allowedEvents, decryptSecret, DomainError, requirePermission, type Role, fulfillmentOf, isUuid, pick, pickupCode, priceCart, sha256Hex, shortId, transitionOrder,
+  allowedEvents, can, decryptSecret, DomainError, requirePermission, type Role, fulfillmentOf, isUuid, pick, pickupCode, priceCart, sha256Hex, shortId, transitionOrder,
   uuidv7, variantTitle, type ActorKind, type CheckResult, type FulfilmentKind, type NotificationPayload, type OrderEvent, type OrderStatus,
   type OrderSummary, type PaymentLedgerPort, type PaymentStatus, type PricingResult, type ProviderConfig, type ProviderId, type TxnView,
   type L10n, type OptionDef, type NextAction,
@@ -262,6 +262,13 @@ async function event(tx: Sql, o: OrderRow, type: string, from: string | null, to
 }
 
 /** Applies an order event with all of its effects. The single place where order status changes. */
+/** Buyer phones and street addresses are shown only to roles with orders.manage (§16.5); others get them masked. */
+export const PHONE_MASK = '•••';
+export function maskContact<T extends { contact?: unknown }>(row: T): T {
+  const c = row.contact as { phone?: string } | null | undefined;
+  return c && typeof c === 'object' ? { ...row, contact: { ...c, phone: c.phone ? PHONE_MASK : c.phone } } : row;
+}
+
 /** Cancelling or accepting the return of a paid order refunds it, so it needs orders.refund on top of orders.manage. */
 export function requireRefundFor(role: Role, paymentStatus: string, ev: OrderEvent): void {
   if ((ev === 'cancel' || ev === 'accept_return') && paymentStatus === 'paid') requirePermission(role, 'orders.refund');
@@ -921,7 +928,8 @@ export function commerceService(s: Ctx) {
 
     // ── Owner order management ─────────────────────────────────────────────
     'admin.orders.list': async (actor: Actor, i: { storeId: string; status?: string | null; q?: string | null; cursor?: string | null }) =>
-      s.staff(i.storeId, actor, 'orders.read', async (tx) => {
+      s.staff(i.storeId, actor, 'orders.read', async (tx, m) => {
+        const phones = can(m.role, 'orders.manage');
         const params: unknown[] = [i.storeId];
         let w = 'o.store_id = $1';
         if (i.status === 'attention') w += ` and o.status in ('paid','awaiting_confirmation','return_requested')`;
@@ -931,7 +939,7 @@ export function commerceService(s: Ctx) {
         else if (i.status) params.push(i.status), (w += ` and o.status = $${params.length}`);
         if (i.q?.trim()) {
           params.push(`%${i.q.trim().toLowerCase().replace(/^#/, '')}%`);
-          w += ` and (o.number::text like $${params.length} or lower(o.contact->>'name') like $${params.length} or o.contact->>'phone' like $${params.length} or o.short_id like $${params.length})`;
+          w += ` and (o.number::text like $${params.length} or lower(o.contact->>'name') like $${params.length} ${phones ? `or o.contact->>'phone' like $${params.length}` : ''} or o.short_id like $${params.length})`;
         }
         const off = Number(i.cursor ?? 0) || 0;
         params.push(off);
@@ -942,15 +950,22 @@ export function commerceService(s: Ctx) {
           params,
         );
         const counts = await tx.query<{ status: string; n: number }>('select status, count(*)::int as n from orders where store_id = $1 group by status', [i.storeId]);
-        return { items: rows.slice(0, 40), nextCursor: rows.length > 40 ? String(off + 40) : null, counts: Object.fromEntries(counts.map((c) => [c.status, c.n])) };
+        return { items: rows.slice(0, 40).map((r) => (phones ? r : maskContact(r))), nextCursor: rows.length > 40 ? String(off + 40) : null, counts: Object.fromEntries(counts.map((c) => [c.status, c.n])) };
       }, { write: false }),
 
     'admin.orders.get': async (actor: Actor, i: { storeId: string; id: string }) =>
       s.staff(i.storeId, actor, 'orders.read', async (tx, m) => {
         const o = await getOrder(tx, i.storeId, i.id);
-        const customer = o.customerId ? (await tx.query('select id, name, phone, tags, note, orders_count, total_spent, is_blocked from customers where id = $1', [o.customerId]))[0] : null;
+        const customer = o.customerId ? (await tx.query<{ phone: string | null }>('select id, name, phone, tags, note, orders_count, total_spent, is_blocked from customers where id = $1', [o.customerId]))[0] : null;
         const notes = await tx.query(`select data, created_at, actor_user_id from order_events where order_id = $1 and type = 'note' order by created_at`, [o.id]);
-        return { ...(await orderDto(tx, m.store, o, 'staff')), customer, notes, canManage: m.role !== 'viewer' };
+        const dto = { ...(await orderDto(tx, m.store, o, 'staff')), customer, notes, canManage: m.role !== 'viewer' };
+        if (can(m.role, 'orders.manage')) return dto;
+        const addr = o.shippingAddress as { regionCode?: string; district?: string } | null;
+        return {
+          ...maskContact(dto),
+          shippingAddress: addr ? { regionCode: addr.regionCode, district: addr.district } : null,
+          customer: customer ? { ...customer, phone: customer.phone ? PHONE_MASK : customer.phone } : null,
+        };
       }, { write: false }),
 
     'admin.orders.transition': async (actor: Actor, i: { storeId: string; id: string; event: OrderEvent; trackingNumber?: string; carrier?: string; pickupCode?: string; reason?: string }) =>

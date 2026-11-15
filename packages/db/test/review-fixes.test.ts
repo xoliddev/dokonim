@@ -90,4 +90,21 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     const cod = await place('cod', 3);
     expect((await h.m['admin.orders.transition'](op, { storeId: ctx.store.id, id: cod.order.id, event: 'cancel' })).status).toBe('cancelled');
   });
+
+  it('buyer phones and addresses are masked for roles without orders.manage (#11)', async () => {
+    const inv = await h.m['admin.staff.invite'](ctx.owner, { storeId: ctx.store.id, role: 'viewer' });
+    const viewer = await h.user('Viewer');
+    await h.m['invites.accept'](viewer, { token: inv.token });
+    const { order } = await place('cod', 0);
+    const dash = await h.m['admin.dashboard'](viewer, { storeId: ctx.store.id });
+    expect(JSON.stringify(dash.recent)).not.toContain('+998901112233');
+    const list = await h.m['admin.orders.list'](viewer, { storeId: ctx.store.id });
+    expect(JSON.stringify(list.items)).not.toContain('+998901112233');
+    expect((await h.m['admin.orders.list'](viewer, { storeId: ctx.store.id, q: '901112233' })).items).toHaveLength(0);
+    const got = await h.m['admin.orders.get'](viewer, { storeId: ctx.store.id, id: order.id });
+    expect(JSON.stringify(got)).not.toContain('+998901112233');
+    expect(JSON.stringify(got)).not.toContain('Amir Temur');
+    const owner = await h.m['admin.orders.get'](ctx.owner, { storeId: ctx.store.id, id: order.id });
+    expect((owner.contact as { phone: string }).phone).toBe('+998901112233');
+  });
 });
