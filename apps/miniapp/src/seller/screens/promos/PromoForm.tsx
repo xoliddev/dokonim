@@ -18,7 +18,9 @@ export interface Promo {
   value: number;
   bxgy: { buy: number; get: number } | null;
   appliesTo?: { type: 'all' | 'products' | 'collections' | 'category'; ids?: string[] };
-  conditions: { minSubtotal?: number | null; firstOrder?: boolean };
+  conditions: { minSubtotal?: number | null; firstOrder?: boolean; customerTags?: string[] };
+  combines?: { order: boolean; product: boolean; shipping: boolean };
+  priority?: number;
   startsAt: string | null;
   endsAt: string | null;
   usageLimit: number | null;
@@ -26,6 +28,9 @@ export interface Promo {
   usedCount: number;
   status: 'active' | 'disabled';
 }
+
+/** The stored stacking flags and priority: the server resets omitted ones to its defaults, so always send them back. */
+export const stacking = (p: Promo | null) => ({ ...(p?.combines ? { combines: p.combines } : {}), ...(typeof p?.priority === 'number' ? { priority: p.priority } : {}) });
 
 const CODE = /^[A-Z0-9_-]{3,32}$/;
 const toLocal = (iso: string | null) => (iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '');
@@ -76,9 +81,10 @@ function Body({ promo, storeId, onClose, t }: { promo: Promo | null; storeId: st
     try {
       await save.run({
         storeId, ...(promo ? { id: promo.id } : {}), kind, title: title.trim() || code || t(`seller.vt_${vt}` as MessageKey), code: kind === 'code' ? code : null, valueType: vt,
-        value: vt === 'percent' ? p : vt === 'fixed' ? amount! : 0, bxgy: vt === 'bxgy' ? { buy: Number(buy) || 1, get: Number(get) || 1 } : null, appliesTo: promo?.appliesTo ?? { type: 'all' }, // keep an existing product / collection scope
-        conditions: { minSubtotal: min, firstOrder: first }, startsAt: fromLocal(starts), endsAt: fromLocal(ends), usageLimit: limit ? Number(limit) : null, perCustomerLimit: per ? Number(per) : null,
-        status: on ? 'active' : 'disabled',
+        // bxgy: value is the percent off the free units (100 = free); keep an existing one, else make them free
+        value: vt === 'percent' ? p : vt === 'fixed' ? amount! : vt === 'bxgy' ? (promo?.valueType === 'bxgy' && promo.value > 0 ? promo.value : 100) : 0, bxgy: vt === 'bxgy' ? { buy: Number(buy) || 1, get: Number(get) || 1 } : null, appliesTo: promo?.appliesTo ?? { type: 'all' }, // keep an existing product / collection scope
+        conditions: { ...promo?.conditions, minSubtotal: min, firstOrder: first }, startsAt: fromLocal(starts), endsAt: fromLocal(ends), usageLimit: limit ? Number(limit) : null, perCustomerLimit: per ? Number(per) : null,
+        status: on ? 'active' : 'disabled', ...stacking(promo),
       });
       haptic.notify('success');
       toast.success(t('seller.prSaved'));

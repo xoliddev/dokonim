@@ -1,5 +1,5 @@
 /** Promo codes & discounts: list with live status (active / scheduled / expired / off), usage, quick toggle, edit, delete. */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { m } from 'motion/react';
 import { useMutation, useQuery } from '../../../api/provider';
 import { useI18n } from '../../../i18n';
@@ -14,7 +14,7 @@ import { Empty, Gate } from '../../components/States';
 import { useSeller } from '../../lib/ctx';
 import { toastError } from '../../lib/errors';
 import { copyText } from '../onboarding/Done';
-import { PromoForm, type Promo } from './PromoForm';
+import { PromoForm, stacking, type Promo } from './PromoForm';
 import './promos.css';
 
 export default function Promos(_: RouteProps) {
@@ -27,6 +27,8 @@ export default function Promos(_: RouteProps) {
   const [flip, setFlip] = useState<Record<string, boolean>>({});
   const [confirmUi, ask] = useConfirm();
   const items = (q.data ?? []) as unknown as Promo[];
+  // the optimistic toggle only bridges the gap until the refetch; after that the server row is the truth
+  useEffect(() => setFlip({}), [q.data]);
   useMainButton({ text: t('seller.prNew'), onClick: () => setEditing('new'), hidden: !!editing || !s.storeId });
 
   const state = (p: Promo) => {
@@ -43,7 +45,7 @@ export default function Promos(_: RouteProps) {
     if (!s.storeId) return;
     setFlip((f) => ({ ...f, [p.id]: on }));
     try {
-      await save.run({ storeId: s.storeId, id: p.id, kind: p.kind, title: p.title, code: p.code, valueType: p.valueType, value: p.value, bxgy: p.bxgy, appliesTo: p.appliesTo ?? { type: 'all' }, conditions: p.conditions, startsAt: p.startsAt, endsAt: p.endsAt, usageLimit: p.usageLimit, perCustomerLimit: p.perCustomerLimit, status: on ? 'active' : 'disabled' });
+      await save.run({ storeId: s.storeId, id: p.id, kind: p.kind, title: p.title, code: p.code, valueType: p.valueType, value: p.value, bxgy: p.bxgy, appliesTo: p.appliesTo ?? { type: 'all' }, conditions: p.conditions, startsAt: p.startsAt, endsAt: p.endsAt, usageLimit: p.usageLimit, perCustomerLimit: p.perCustomerLimit, status: on ? 'active' : 'disabled', ...stacking(p) });
     } catch (e) {
       setFlip((f) => ({ ...f, [p.id]: !on }));
       toastError(e, t);
