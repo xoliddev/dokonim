@@ -473,7 +473,7 @@ export function sqlLedger(s: Ctx, storeId: string, scope?: { provider: ProviderI
           [storeId, orderId],
         );
         if (!o) return { ok: false, reason: 'not_found' };
-        const [p] = await tx.query<{ id: string; amount: number; status: PaymentStatus; currency: 'UZS'; provider: ProviderId; mode: string }>(
+        const [p] = await tx.query<{ id: string; amount: number; status: PaymentStatus; currency: 'UZS' | 'XTR'; provider: ProviderId; mode: string }>(
           `select id, amount, status, currency, provider, mode from payments where order_id = $1 ${ref.paymentId && isUuid(ref.paymentId) ? 'and id = $2' : ''} order by (status in ('created','pending')) desc, created_at desc limit 1`,
           ref.paymentId && isUuid(ref.paymentId) ? [o.id, ref.paymentId] : [o.id],
         );
