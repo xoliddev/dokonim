@@ -73,6 +73,8 @@ export function startRoute(): string {
       return `/m/${p.slug}`;
     case 'new':
       return '/new';
+    case 'invite':
+      return `/invite/${encodeURIComponent(p.token)}`;
     default:
       return '/';
   }

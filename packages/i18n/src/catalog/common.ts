@@ -74,6 +74,10 @@ const uz = {
   demoReset: 'Demoni tiklash',
   demoResetConfirm: 'Barcha demo maʼlumotlar boshlangʻich holatga qaytadi. Davom etamizmi?',
   demoNoPersist: 'Shaxsiy rejim: maʼlumotlar saqlanmaydi',
+  inviteTitle: 'Jamoaga taklif',
+  inviteHint: 'Sizni doʻkon jamoasiga qoʻshilishga taklif qilishdi. Qabul qilsangiz, doʻkon boshqaruvi ochiladi.',
+  inviteAccept: 'Taklifni qabul qilish',
+  inviteInvalid: 'Bu taklif havolasi eskirgan yoki allaqachon ishlatilgan',
   comingSoon: 'Tez orada',
   telegramBot: 'bot',
 };
@@ -146,6 +150,10 @@ const ru: Catalog = {
   demoReset: 'Сбросить демо',
   demoResetConfirm: 'Все демо-данные вернутся к исходному состоянию. Продолжить?',
   demoNoPersist: 'Приватный режим: данные не сохранятся',
+  inviteTitle: 'Приглашение в команду',
+  inviteHint: 'Вас пригласили в команду магазина. Примите приглашение, чтобы открыть управление магазином.',
+  inviteAccept: 'Принять приглашение',
+  inviteInvalid: 'Ссылка-приглашение устарела или уже использована',
   comingSoon: 'Скоро',
   telegramBot: 'бот',
 };
@@ -215,6 +223,10 @@ const en: Catalog = {
   demoReset: 'Reset demo',
   demoResetConfirm: 'All demo data will return to its initial state. Continue?',
   demoNoPersist: 'Private mode: data won’t be saved',
+  inviteTitle: 'Team invite',
+  inviteHint: 'You’ve been invited to join a store’s team. Accept to open the store dashboard.',
+  inviteAccept: 'Accept invite',
+  inviteInvalid: 'This invite link has expired or was already used',
   comingSoon: 'Coming soon',
   telegramBot: 'bot',
 };

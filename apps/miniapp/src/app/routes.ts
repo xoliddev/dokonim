@@ -8,7 +8,11 @@ import { sellerRoutes } from '../seller';
 import { storeRoutes } from '../store';
 
 const Hub = lazy(() => import('../shell/Hub'));
+const Invite = lazy(() => import('../shell/Invite'));
 
-export const shellRoutes: RouteDef[] = [{ path: '/', component: Hub, surface: 'shell' }];
+export const shellRoutes: RouteDef[] = [
+  { path: '/', component: Hub, surface: 'shell' },
+  { path: '/invite/:token', component: Invite, surface: 'shell' },
+];
 
 export const routes: RouteDef[] = [...shellRoutes, ...storeRoutes, ...sellerRoutes];
