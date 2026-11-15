@@ -22,7 +22,8 @@ export default defineConfig(({ mode }) => {
     // Target is derived from the mode (not an .env file, which is gitignored): demo → LocalApi, else HttpApi.
     define: {
       'import.meta.env.VITE_TARGET': JSON.stringify(demo ? 'demo' : (process.env.VITE_TARGET ?? 'http')),
-      'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL ?? (mode === 'production' ? 'https://api.dokonim.uz' : 'http://localhost:3000')),
+      // dev: same origin, proxied to the local API below (so no CORS setup is needed)
+      'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL ?? (mode === 'production' ? 'https://api.dokonim.uz' : '')),
     },
     plugins: [react(), telegramScript(!demo)],
     // PGlite ships its own WASM + data bundle resolved via import.meta.url; pre-bundling breaks those URLs.
@@ -33,7 +34,8 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 1500,
       assetsInlineLimit: (file) => (file.endsWith('.wasm') || file.endsWith('.data') || file.endsWith('.tar.gz') ? false : undefined),
     },
-    server: { port: 5173 },
+    // apps/api listens on :8080 by default (PORT); API_PROXY_TARGET points the dev proxy elsewhere
+    server: { port: 5173, proxy: { '/v1': process.env.API_PROXY_TARGET ?? 'http://localhost:8080' } },
     preview: { port: 4173 },
   };
 });
