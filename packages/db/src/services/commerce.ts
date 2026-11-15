@@ -311,12 +311,23 @@ export async function applyOrderEvent(
         if ((left?.n ?? 0) > 0) {
           const rs = await tx.query<{ variantId: string; qty: number }>('delete from inventory_reservations where order_id = $1 returning variant_id, qty', [o.id]);
           for (const r of rs) await tx.query('update inventory_levels set reserved = greatest(0, reserved - $2) where variant_id = $1', [r.variantId, r.qty]);
-        } else
-          for (const it of items) {
-            if (!it.variantId) continue;
-            const r = await tx.query('update inventory_levels set on_hand = on_hand + $2 where variant_id = $1 returning variant_id', [it.variantId, it.qty]);
-            if (r.length) await movement(tx, store.id, it.variantId, it.qty, ev === 'accept_return' ? 'return' : 'cancel_restock', actor, 'order', o.id, `#${o.number}`);
+        } else {
+          // a cancel puts back what the sale took off the shelf; a return puts back what the buyer sends back
+          const back = new Map<string, number>();
+          if (ev === 'accept_return') {
+            for (const it of items) if (it.variantId) back.set(it.variantId, (back.get(it.variantId) ?? 0) + it.qty);
+          } else {
+            const taken = await tx.query<{ variantId: string; n: number }>(
+              `select variant_id, (-sum(delta))::int as n from inventory_movements where store_id = $1 and ref_type = 'order' and ref_id = $2 and reason = 'sale' group by variant_id`,
+              [store.id, o.id],
+            );
+            for (const t of taken) if (t.n > 0) back.set(t.variantId, t.n);
           }
+          for (const [variantId, qty] of back) {
+            const r = await tx.query('update inventory_levels set on_hand = on_hand + $2 where variant_id = $1 returning variant_id', [variantId, qty]);
+            if (r.length) await movement(tx, store.id, variantId, qty, ev === 'accept_return' ? 'return' : 'cancel_restock', actor, 'order', o.id, `#${o.number}`);
+          }
+        }
         for (const pid of new Set(items.map((x) => x.productId).filter(Boolean))) await refreshProduct(s, tx, store, pid!);
         break;
       }
@@ -388,12 +399,15 @@ async function commitSale(s: Ctx, tx: Sql, store: StoreRow, o: OrderRow, actor: 
   const rs = await tx.query<{ variantId: string; qty: number }>('delete from inventory_reservations where store_id = $1 and order_id = $2 returning variant_id, qty', [store.id, o.id]);
   rs.sort((a, b) => a.variantId.localeCompare(b.variantId));
   for (const r of rs) {
+    const [old] = await tx.query<{ onHand: number }>('select on_hand from inventory_levels where variant_id = $1 for update', [r.variantId]);
     const [lvl] = await tx.query<{ onHand: number; reserved: number; lowStockThreshold: number; trackInventory: boolean; productId: string }>(
       `update inventory_levels l set on_hand = greatest(0, l.on_hand - $2), reserved = greatest(0, l.reserved - $2) from product_variants v
        where l.variant_id = $1 and v.id = l.variant_id returning l.on_hand, l.reserved, l.low_stock_threshold, v.track_inventory, v.product_id`,
       [r.variantId, r.qty],
     );
-    await movement(tx, store.id, r.variantId, -r.qty, 'sale', actor, 'order', o.id, `#${o.number}`);
+    // a backorder sale clamps on_hand at 0: the movement records what was really taken, so a cancel restocks only that
+    const removed = old && lvl ? old.onHand - lvl.onHand : r.qty;
+    await movement(tx, store.id, r.variantId, -removed, 'sale', actor, 'order', o.id, `#${o.number}`);
     if (lvl?.trackInventory && lvl.onHand - lvl.reserved <= lvl.lowStockThreshold) lowStock.push({ productId: lvl.productId, variantId: r.variantId });
   }
   const items = await tx.query<{ productId: string | null; qty: number }>('select product_id, qty from order_items where order_id = $1', [o.id]);

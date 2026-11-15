@@ -216,4 +216,23 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     expect(r.order).toMatchObject({ status: 'paid', paymentStatus: 'paid' });
     expect(r.nextAction.type).toBe('none');
   });
+
+  it('cancelling a backorder sale restocks only the units it really took (#25)', async () => {
+    const input = variantProduct(ctx.store.id, null, { title: 'Backorder', stock: 2 });
+    input.options = [];
+    input.variants = [{ ...input.variants[0]!, optionValueIds: [], allowBackorder: true }];
+    const p = await h.m['admin.products.save'](ctx.owner, input);
+    const vid = p.variants[0]!.id as string;
+    const buyer = await h.user('Backorder');
+    await h.m['cart.setItem'](buyer, { slug: slug(), variantId: vid, qty: 5 });
+    const q = await h.m['checkout.quote'](buyer, { slug: slug(), region: 'UZ-TK' });
+    const m = q.shippingOptions.find((o) => o.type === 'courier')!;
+    const { order } = await h.m['orders.place'](buyer, { slug: slug(), idempotencyKey: 'backorder-1', contact: { name: 'B', phone: '+998901112233' }, methodId: m.methodId, address: ADDRESS, paymentMethod: 'cod' });
+    const t = (event: string) => h.m['admin.orders.transition'](ctx.owner, { storeId: ctx.store.id, id: order.id, event: event as 'confirm' });
+    await t('confirm');
+    const onHand = async () => (await h.db.query<{ onHand: number }>('select on_hand from inventory_levels where variant_id = $1', [vid]))[0]!.onHand;
+    expect(await onHand()).toBe(0);
+    await t('cancel');
+    expect(await onHand()).toBe(2);
+  });
 });
