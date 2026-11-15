@@ -85,6 +85,8 @@ describe('CSV import / export', () => {
     const back = parseCsv(csv);
     expect(back[1]![0]).toBe(`'=HYPERLINK("x")`);
     expect(back[2]).toEqual(['-5', `'+1`]);
+    const tricky = parseCsv(toCsv([['-1+HYPERLINK("https://evil.example","Open")', -2.5]]));
+    expect(tricky[0]).toEqual([`'-1+HYPERLINK("https://evil.example","Open")`, '-2.5']);
   });
   it('category paths split on / > |', () => {
     expect(splitCategoryPath('Kiyim / Ayollar / Koʻylaklar')).toEqual(['Kiyim', 'Ayollar', 'Koʻylaklar']);

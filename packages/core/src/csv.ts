@@ -40,8 +40,8 @@ function detectDelimiter(src: string): string {
 export function toCsv(rows: Array<Array<string | number | null | undefined>>): string {
   const esc = (v: string | number | null | undefined) => {
     const s = v == null ? '' : String(v);
-    // Neutralise spreadsheet formula injection.
-    const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d/.test(s) ? `'${s}` : s;
+    // Neutralise spreadsheet formula injection: only a plain negative number may start with '-'.
+    const safe = /^[=+\-@\t\r]/.test(s) && !/^-\d+(\.\d+)?$/.test(s) ? `'${s}` : s;
     return /[",\n\r;]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
   };
   return `﻿${rows.map((r) => r.map(esc).join(',')).join('\r\n')}\r\n`;
