@@ -30,6 +30,8 @@ export async function streamOrderEvents(
   req: FastifyRequest,
   reply: FastifyReply,
   opts: SseOptions,
+  /** Open streams register their closer here so shutdown can end them (hijacked sockets block server.close()). */
+  open?: Set<() => void>,
 ): Promise<void> {
   const get = () => backend.methods['orders.get'](actor, input) as Promise<OrderView>;
   // Resolve before hijacking so NOT_FOUND / UNAUTHENTICATED still go through the normal JSON error path.
@@ -81,9 +83,11 @@ export async function streamOrderEvents(
   }, opts.heartbeatMs);
   const stop = setTimeout(() => close(), opts.maxMs);
 
+  open?.add(close);
   function close() {
     if (closed) return;
     closed = true;
+    open?.delete(close);
     clearInterval(poll);
     clearInterval(beat);
     clearTimeout(stop);

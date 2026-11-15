@@ -126,3 +126,20 @@ describe.each(ADAPTERS)('HTTP commerce flow on $name', ({ make }) => {
     await w.stop();
   });
 });
+
+describe.each(ADAPTERS)('graceful shutdown on $name', ({ make }) => {
+  it('closing the app ends open SSE streams instead of waiting out maxMs (#5)', async () => {
+    const api = await makeApi(make, { sse: { maxMs: 10 * 60_000, pollMs: 50, heartbeatMs: 60_000 } });
+    const seed = await seedOverHttp(api, 'sse-shutdown');
+    const buyer = await api.login('Shutdown');
+    const placed = await placeOrder(api, 'sse-shutdown', seed.product.variants[0].id as string, buyer, 'cod');
+    const stream = api.app.inject({ method: 'GET', url: `/v1/s/sse-shutdown/orders/${placed.order.id}/events?access_token=${buyer.token}` });
+    await new Promise((r) => setTimeout(r, 150));
+    const t0 = Date.now();
+    await api.close();
+    const res = await stream;
+    expect(Date.now() - t0).toBeLessThan(3_000);
+    expect(res.body).toContain('event: order');
+    expect(res.body).not.toContain('event: error'); // ended by preClose, not by polling a closed database
+  });
+});

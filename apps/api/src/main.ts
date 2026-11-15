@@ -106,8 +106,8 @@ async function main() {
     const force = setTimeout(() => process.exit(1), 15_000);
     force.unref();
     try {
-      await app.close();
-      await workers?.stop();
+      // open SSE streams are ended in preClose; workers stop alongside so an outbox delivery finishes before the pool ends
+      await Promise.all([app.close(), workers?.stop()]);
       if (bot && mode === 'polling' && bot.isRunning()) await bot.stop();
       await db.close();
     } finally {

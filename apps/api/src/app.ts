@@ -238,6 +238,10 @@ export async function buildApp(opts: BuildAppOptions): Promise<FastifyInstance> 
   }
 
   // ── Order status stream (SSE) ──
+  const openStreams = new Set<() => void>();
+  app.addHook('preClose', async () => {
+    for (const close of [...openStreams]) close();
+  });
   app.get('/v1/s/:slug/orders/:id/events', { config: { rateLimit: routeLimit('default', limits) } }, async (req, reply) => {
     const q = req.query as Record<string, unknown>;
     let actor = req.actor;
@@ -245,7 +249,7 @@ export async function buildApp(opts: BuildAppOptions): Promise<FastifyInstance> 
     if (!actor) throw new ApiError('UNAUTHENTICATED', 'Authorization required', {}, 401);
     const p = req.params as { slug: string; id: string };
     const input = validate('orders.get', { slug: p.slug, id: p.id });
-    await streamOrderEvents(backend, actor, input, req, reply, sse);
+    await streamOrderEvents(backend, actor, input, req, reply, sse, openStreams);
   });
 
   // ── Payment provider webhooks (no JWT; raw body for signatures) ──
