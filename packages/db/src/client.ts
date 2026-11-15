@@ -4,6 +4,7 @@
  * Timestamps are ISO strings and int8/numeric are JS numbers in both adapters.
  */
 import init0001 from './migrations/0001_init';
+import discountCodeArchived0002 from './migrations/0002_discount_code_archived';
 
 export type Row = Record<string, unknown>;
 
@@ -51,7 +52,10 @@ export async function inScope<T>(db: Database, scope: TenantScope, fn: (tx: Sql)
   });
 }
 
-export const MIGRATIONS: Array<{ id: string; sql: string }> = [{ id: '0001_init', sql: init0001 }];
+export const MIGRATIONS: Array<{ id: string; sql: string }> = [
+  { id: '0001_init', sql: init0001 },
+  { id: '0002_discount_code_archived', sql: discountCodeArchived0002 },
+];
 
 export async function migrate(db: Database): Promise<string[]> {
   await db.exec('create table if not exists _migrations (id text primary key, applied_at timestamptz not null default now())');

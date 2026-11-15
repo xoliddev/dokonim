@@ -324,7 +324,7 @@ export function manageService(s: Ctx) {
         if (i.kind === 'code') {
           const code = (i.code ?? '').trim().toUpperCase();
           if (!/^[A-Z0-9_-]{3,32}$/.test(code)) throw new DomainError('VALIDATION', 'Code: 3–32 letters, digits, - or _', { field: 'code' });
-          const dup = await tx.query('select 1 from discounts where store_id = $1 and lower(code) = lower($2) and id <> $3', [i.storeId, code, id]);
+          const dup = await tx.query(`select 1 from discounts where store_id = $1 and lower(code) = lower($2) and id <> $3 and status <> 'archived'`, [i.storeId, code, id]);
           if (dup.length) throw new DomainError('CONFLICT', 'This code already exists', { field: 'code' });
           i.code = code;
         } else i.code = null;

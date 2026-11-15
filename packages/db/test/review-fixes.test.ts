@@ -143,4 +143,13 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     expect(p!.searchDoc.toLowerCase()).toContain('erkaklar');
     expect(p!.searchDoc.toLowerCase()).not.toContain('ayollar');
   });
+
+  it('a deleted promo code can be created again (#28)', async () => {
+    const save = () => h.m['admin.discounts.save'](ctx.owner, { storeId: ctx.store.id, kind: 'code', title: 'Bayram', code: 'BAYRAM10', valueType: 'percent', value: 10, appliesTo: { type: 'all' } });
+    const first = (await save()) as { id: string };
+    await expect(save()).rejects.toMatchObject({ code: 'CONFLICT' });
+    await h.m['admin.discounts.delete'](ctx.owner, { storeId: ctx.store.id, id: first.id });
+    const again = (await save()) as { id: string };
+    expect(again.id).not.toBe(first.id);
+  });
 });
