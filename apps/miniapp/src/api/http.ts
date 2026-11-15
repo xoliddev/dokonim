@@ -8,6 +8,12 @@ import { toApiError, makeApi, type ApiClient, type ApiName, type BackendStatus, 
 
 const REFRESH_KEY = 'dokonim.refresh';
 
+/** The server wraps every error as `{ error: { code, message, details } }` (SPEC §10.1). */
+function errorOf(json: unknown): Partial<SerializedError> {
+  const e = (json as { error?: unknown } | null)?.error;
+  return e && typeof e === 'object' ? (e as Partial<SerializedError>) : {};
+}
+
 export function createHttpApi(baseUrl: string, getInitData: () => string): ApiClient {
   let access: string | null = null;
   let loginP: Promise<void> | null = null;
@@ -30,8 +36,11 @@ export function createHttpApi(baseUrl: string, getInitData: () => string): ApiCl
 
   async function post(path: string, body: unknown) {
     const res = await fetch(baseUrl + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-    const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
-    if (!res.ok) throw toApiError({ code: String(json.code ?? 'UNAUTHENTICATED'), message: String(json.message ?? res.statusText), details: json.details as Record<string, unknown>, status: res.status });
+    const json = (await res.json().catch(() => ({}))) as unknown;
+    if (!res.ok) {
+      const e = errorOf(json);
+      throw toApiError({ code: e.code ?? 'UNAUTHENTICATED', message: e.message ?? res.statusText, details: e.details, status: res.status });
+    }
     return json as { accessToken: string; refreshToken: string };
   }
 
@@ -61,7 +70,8 @@ export function createHttpApi(baseUrl: string, getInitData: () => string): ApiCl
     }));
 
   async function call(name: ApiName, input: unknown, retried = false): Promise<unknown> {
-    await ensureAuth();
+    const login = ensureAuth();
+    await login;
     const r = buildRequest(name as RouteName, (input ?? {}) as Record<string, unknown>);
     const res = await fetch(baseUrl + r.url, {
       method: r.verb,
@@ -69,13 +79,17 @@ export function createHttpApi(baseUrl: string, getInitData: () => string): ApiCl
       body: r.body === undefined ? undefined : JSON.stringify(r.body),
     });
     if (res.status === 401 && !retried) {
-      access = null;
-      loginP = null;
+      // Only the first 401 for this login starts a refresh; concurrent 401s await that same refresh instead of
+      // replaying the old refresh token (which the server treats as reuse and revokes the whole family).
+      if (loginP === login) {
+        access = null;
+        loginP = null;
+      }
       return call(name, input, true);
     }
     const json = (await res.json().catch(() => null)) as unknown;
     if (!res.ok) {
-      const e = (json ?? {}) as Partial<SerializedError>;
+      const e = errorOf(json);
       throw toApiError({ code: e.code ?? 'INTERNAL', message: e.message ?? res.statusText, details: e.details, status: res.status });
     }
     return json;
