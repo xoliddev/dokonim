@@ -16,8 +16,13 @@ function wrap(c: pg.Pool | pg.PoolClient): Sql {
   };
 }
 
-export function createPgDatabase(connectionString: string, max = 10): Database {
+const logIdleError = (err: Error) => console.error(JSON.stringify({ level: 'error', msg: 'pg idle client error', error: err.message }));
+
+export function createPgDatabase(connectionString: string, max = 10, onError: (err: Error) => void = logIdleError): Database {
   const pool = new pg.Pool({ connectionString, max });
+  // an idle client that loses its connection (DB restart, failover, pg_terminate_backend) is re-emitted as a pool
+  // 'error'; without a listener that is an uncaught exception that kills the process. The pool already drops the client.
+  pool.on('error', onError);
   const base = wrap(pool);
   return {
     kind: 'pg',
