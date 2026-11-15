@@ -31,15 +31,51 @@ interface Live {
   actor: Actor;
   timer: ReturnType<typeof setInterval>;
 }
+/**
+ * Deletes the persisted store. A `blocked` delete is not done: opening the database again would queue behind it
+ * and hang, so we report `waiting` (another tab still has it open) and finish once that connection goes away.
+ */
 const deleteIdb = () =>
   new Promise<void>((resolve) => {
     try {
       const r = indexedDB.deleteDatabase(IDB_PATH);
-      r.onsuccess = r.onerror = r.onblocked = () => resolve();
+      let blocked = false;
+      r.onsuccess = r.onerror = () => {
+        if (blocked) setStatus({ phase: 'booting' });
+        resolve();
+      };
+      r.onblocked = () => {
+        blocked = true;
+        setStatus({ phase: 'waiting' });
+      };
     } catch {
       resolve();
     }
   });
+
+/**
+ * One tab at a time owns the persisted database: PGlite's IDBFS keeps a full copy in memory and syncs files back
+ * newest-wins, so two tabs writing the same idb:// store mix two cluster states. Resolves once this tab holds the
+ * lock, which it keeps until the tab (and so this worker) goes away; meanwhile the status says `waiting`.
+ */
+function ownDatabase(): Promise<void> {
+  const locks = (navigator as { locks?: LockManager }).locks;
+  if (!locks) return Promise.resolve();
+  return new Promise<void>((owned) => {
+    const hold = () => {
+      owned();
+      return new Promise<never>(() => {});
+    };
+    locks
+      .request('dokonim-demo-db', { ifAvailable: true }, (lock) => {
+        if (lock) return hold();
+        setStatus({ phase: 'waiting' });
+        return locks.request('dokonim-demo-db', hold);
+      })
+      .catch(() => owned());
+  });
+}
+const owner = ownDatabase();
 
 /** False only when the browser can list databases and ours is not there (first visit). */
 async function idbMayExist(): Promise<boolean> {
@@ -93,6 +129,7 @@ async function prepare(db: Database) {
  */
 async function openDb(): Promise<{ db: Database; persistent: boolean }> {
   let idb: Database | null = null;
+  let existing = false; // a seeded store from an earlier visit was opened
   const snapshot = fetchSnapshot();
   try {
     if (typeof indexedDB === 'undefined') throw new Error('no IndexedDB');
@@ -100,6 +137,7 @@ async function openDb(): Promise<{ db: Database; persistent: boolean }> {
     if (await idbMayExist()) {
       idb = await createPgliteDatabase(`idb://${IDB_NAME}`);
       if (await isSeeded(idb)) {
+        existing = true;
         setStatus({ phase: 'migrating', persistent: true });
         await migrate(idb); // applies only migrations added since the visitor's last visit
         return { db: idb, persistent: true };
@@ -111,11 +149,15 @@ async function openDb(): Promise<{ db: Database; persistent: boolean }> {
     const tar = (await snapshot) ?? (await seedToTar());
     await deleteIdb();
     setStatus({ progress: 0.6 });
-    const db = wrapPglite(await createPglite(`idb://${IDB_NAME}`, { loadDataDir: tar }));
-    await prepare(db);
-    return { db, persistent: true };
-  } catch {
+    idb = wrapPglite(await createPglite(`idb://${IDB_NAME}`, { loadDataDir: tar }));
+    await prepare(idb);
+    return { db: idb, persistent: true };
+  } catch (e) {
     await idb?.close().catch(() => {});
+    // The visitor's own store opened but failed later (a migration, quota…): falling back to a fresh in-memory
+    // demo would hide their data behind a "private mode" label, so surface the error (Boot screen offers a reset).
+    if (existing) throw e;
+    console.warn('[demo] persistent database unavailable, running in memory:', e);
     // Private mode / no IndexedDB: everything lives in memory and the label says it won't persist.
     const tar = await snapshot;
     const db = tar ? wrapPglite(await createPglite(undefined, { loadDataDir: tar })) : await createPgliteDatabase();
@@ -132,6 +174,8 @@ async function openDb(): Promise<{ db: Database; persistent: boolean }> {
 async function boot(): Promise<Live> {
   try {
     setStatus({ phase: 'booting', progress: 0, error: undefined });
+    await owner;
+    setStatus({ phase: 'booting' });
     const { db, persistent } = await openDb();
     setStatus({ persistent });
     const backend = createBackend({

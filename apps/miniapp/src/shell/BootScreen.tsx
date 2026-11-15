@@ -1,12 +1,17 @@
 /** Shown inside the phone while PGlite boots / migrates / seeds in the worker (first run ≈ a few seconds). */
-import { useBackendStatus } from '../api/provider';
+import { useApi, useBackendStatus } from '../api/provider';
 import { useI18n } from '../i18n';
 import { Button, Skeleton } from '../ui';
 
 export function BootScreen() {
   const { t } = useI18n();
   const s = useBackendStatus();
-  const text = s.phase === 'seeding' ? t('common.demoSeeding') : s.phase === 'error' ? t('common.errorGeneric') : t('common.demoBooting');
+  const client = useApi();
+  const text = s.phase === 'seeding' ? t('common.demoSeeding') : s.phase === 'waiting' ? t('common.demoOtherTab') : s.phase === 'error' ? t('common.errorGeneric') : t('common.demoBooting');
+  const reset = async () => {
+    await client.resetDemo?.().catch(() => {});
+    location.reload();
+  };
   return (
     <div className="boot" role="status" aria-live="polite" aria-busy={s.phase !== 'error'}>
       <div className="boot-logo display">{t('common.appName')}</div>
@@ -21,6 +26,11 @@ export function BootScreen() {
         <>
           <p className="muted boot-error">{s.error}</p>
           <Button onClick={() => location.reload()}>{t('common.retry')}</Button>
+          {client.resetDemo && (
+            <Button variant="ghost" onClick={() => void reset()}>
+              {t('common.demoReset')}
+            </Button>
+          )}
         </>
       ) : (
         <div className="boot-skeleton" aria-hidden="true">

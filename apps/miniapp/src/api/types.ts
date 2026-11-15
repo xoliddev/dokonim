@@ -16,7 +16,8 @@ export type ApiOut<K extends ApiName> = Awaited<ReturnType<Api[K]>>;
 
 export type Transport = (name: ApiName, input: unknown) => Promise<unknown>;
 
-export type BootPhase = 'booting' | 'migrating' | 'seeding' | 'ready' | 'error';
+/** `waiting`: another tab owns the demo database (or blocks deleting it); this one boots once that tab closes. */
+export type BootPhase = 'booting' | 'waiting' | 'migrating' | 'seeding' | 'ready' | 'error';
 
 export interface BackendStatus {
   phase: BootPhase;
