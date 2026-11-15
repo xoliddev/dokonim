@@ -8,6 +8,7 @@ import { useBackendStatus } from '../api/provider';
 import { isRealTelegram } from '../telegram/shim';
 import { Icon } from '../ui';
 import { DemoBar } from './DemoBar';
+import { PhoneStatus } from './PhoneStatus';
 
 function useWide() {
   const q = '(min-width: 720px) and (min-height: 640px)';
@@ -77,7 +78,11 @@ export function DemoFrame({ children }: { children: ReactNode }) {
       </aside>
       <div className="phone" aria-label="Telegram Mini App">
         <div className="phone-notch" aria-hidden="true" />
-        <div className="phone-screen">{children}</div>
+        <div className="phone-screen">
+          <PhoneStatus />
+          {children}
+        </div>
+        <span className="phone-homebar" aria-hidden="true" />
       </div>
     </div>
   );
