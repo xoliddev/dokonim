@@ -575,6 +575,11 @@ export interface PlaceOrderInput {
   paymentMethod: ProviderId;
   note?: string;
   source?: string | null;
+  /**
+   * The total the buyer was shown (minor units). When sent, any difference (a promo that stopped applying, a flash
+   * sale that ended, a shipping rate change) fails with PRICE_CHANGED instead of silently charging another amount.
+   */
+  expectedTotal?: number | null;
 }
 
 const PHONE_RE = /^\+?998\d{9}$/;
@@ -717,6 +722,8 @@ export function commerceService(s: Ctx) {
         const bad = live.find((it) => it.warnings.includes('out_of_stock') || it.warnings.includes('qty_reduced'));
         if (bad) throw new DomainError('OUT_OF_STOCK', 'Some items are no longer in stock', { variantId: bad.variantId, available: bad.available });
         if (live.some((it) => it.warnings.includes('price_changed'))) throw new DomainError('PRICE_CHANGED', 'Prices changed since you added these items');
+        if (i.expectedTotal != null && i.expectedTotal !== cart.pricing.total)
+          throw new DomainError('PRICE_CHANGED', 'The order total changed since you saw it', { expectedTotal: i.expectedTotal, total: cart.pricing.total, promo: cart.pricing.promo });
         let method: ShippingOption | null = null;
         if (!cart.isDigital) {
           method = q.selectedMethod;

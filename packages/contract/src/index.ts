@@ -125,7 +125,7 @@ export const ROUTES = {
   'cart.applyPromo': r('POST', '/v1/s/:slug/cart/promo', 'user', z.object({ slug, code: z.string().min(1).max(40) })),
   'cart.removePromo': r('DELETE', '/v1/s/:slug/cart/promo', 'user', z.object({ slug })),
   'checkout.quote': r('POST', '/v1/s/:slug/checkout/quote', 'user', z.object({ slug, methodId: uuid.nullish(), region: z.string().regex(/^UZ-[A-Z]{2}$/).nullish(), district: z.string().max(80).nullish() }), { rateLimit: 'checkout' }),
-  'orders.place': r('POST', '/v1/s/:slug/orders', 'user', z.object({ slug, idempotencyKey: z.string().min(8).max(80), contact: z.object({ name: z.string().max(80), phone: z.string().max(20) }), methodId: uuid.nullable(), address: address.nullish(), pickupPointId: z.string().max(40).nullish(), paymentMethod: provider, note: z.string().max(500).optional(), source: z.string().max(40).nullish() }), { idempotent: true, rateLimit: 'checkout' }),
+  'orders.place': r('POST', '/v1/s/:slug/orders', 'user', z.object({ slug, idempotencyKey: z.string().min(8).max(80), contact: z.object({ name: z.string().max(80), phone: z.string().max(20) }), methodId: uuid.nullable(), address: address.nullish(), pickupPointId: z.string().max(40).nullish(), paymentMethod: provider, note: z.string().max(500).optional(), source: z.string().max(40).nullish(), expectedTotal: z.number().int().min(0).nullish() }), { idempotent: true, rateLimit: 'checkout' }),
   'orders.mine': r('GET', '/v1/s/:slug/orders', 'user', z.object({ slug })),
   'orders.get': r('GET', '/v1/s/:slug/orders/:id', 'user', z.object({ slug, id: z.string().max(40) })),
   'orders.cancel': r('POST', '/v1/s/:slug/orders/:id/cancel', 'user', z.object({ slug, id: uuid, reason: z.string().max(200).optional() })),

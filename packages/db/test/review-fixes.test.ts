@@ -124,4 +124,15 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     const [row] = await h.db.query<{ usedCount: number }>('select used_count from discounts where id = $1', [(d as { id: string }).id]);
     expect(row!.usedCount).toBeLessThanOrEqual(1);
   });
+
+  it('a total that changed since the buyer saw it fails with PRICE_CHANGED (#20)', async () => {
+    const buyer = await h.user('Expected');
+    await h.m['cart.setItem'](buyer, { slug: slug(), variantId: variant(1).id, qty: 1 });
+    const q = await h.m['checkout.quote'](buyer, { slug: slug(), region: 'UZ-TK' });
+    const m = q.shippingOptions.find((o) => o.type === 'courier')!;
+    const quoted = (await h.m['checkout.quote'](buyer, { slug: slug(), methodId: m.methodId, region: 'UZ-TK' })).cart.pricing.total;
+    const input = { slug: slug(), idempotencyKey: 'expected-1', contact: { name: 'X', phone: '+998901112233' }, methodId: m.methodId, address: ADDRESS, paymentMethod: 'cod' as const };
+    await expect(h.m['orders.place'](buyer, { ...input, expectedTotal: quoted - 8_000_000 })).rejects.toMatchObject({ code: 'PRICE_CHANGED' });
+    expect((await h.m['orders.place'](buyer, { ...input, expectedTotal: quoted })).order.total).toBe(quoted);
+  });
 });
