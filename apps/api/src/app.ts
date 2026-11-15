@@ -220,7 +220,9 @@ export async function buildApp(opts: BuildAppOptions): Promise<FastifyInstance> 
       url: def.path,
       config: { rateLimit: routeLimit(group, limits) },
       handler: async (req: FastifyRequest, reply: FastifyReply) => {
-        // public: optional bearer (an expired token degrades to anonymous); user: required.
+        // public: optional bearer; user: required. A present but invalid/expired bearer is a 401 on both, so the client
+        // refreshes instead of silently getting anonymous data (no wishlist flags, no store role).
+        if (def.auth !== 'user' && req.badToken) throw new ApiError('UNAUTHENTICATED', 'Access token is invalid or expired', {}, 401);
         const actor = def.auth === 'user' ? requireUser(req) : (req.actor ?? ANON);
         const input = mergeRequest((req.params ?? {}) as Record<string, string>, (req.query ?? {}) as Record<string, unknown>, req.body);
         if (def.idempotent) {

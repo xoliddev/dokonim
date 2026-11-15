@@ -67,8 +67,11 @@ describe.each(ADAPTERS)('auth over HTTP on $name', ({ make }) => {
     const stale = await api.call('me.get', {}, token);
     expect(stale.statusCode).toBe(401);
     expect((stale.json() as J).error.message).toMatch(/expired/);
-    // public routes degrade to anonymous instead of failing
-    expect((await api.call('stores.slugAvailable', { slug: 'some-shop' }, token)).statusCode).toBe(200);
+    // public routes: an expired bearer is a 401 too (so the client refreshes); no bearer at all is anonymous
+    const stalePublic = await api.call('stores.slugAvailable', { slug: 'some-shop' }, token);
+    expect(stalePublic.statusCode).toBe(401);
+    expect((stalePublic.json() as J).error.message).toMatch(/expired/);
+    expect((await api.call('stores.slugAvailable', { slug: 'some-shop' })).statusCode).toBe(200);
     // every user route without a token → 401 (before validation)
     expect((await api.call('orders.place', { slug: 'x' })).statusCode).toBe(401);
     expect((await api.call('admin.store.get', { storeId: 'nope' })).statusCode).toBe(401);
