@@ -2,8 +2,9 @@
  * Telegram Mini App initData validation (§14.3):
  *   secret = HMAC_SHA256(key = "WebAppData", msg = bot_token)
  *   hash   = hex(HMAC_SHA256(key = secret, msg = data_check_string))
- * data_check_string = "key=value" lines sorted by key, excluding `hash` (and `signature`, which is
- * the Ed25519 third-party field). The demo signs its mock initData with the same function.
+ * data_check_string = "key=value" lines sorted by key, excluding only `hash`. The Ed25519 `signature`
+ * field that current clients send is part of the HMAC-signed data (only the third-party Ed25519 check
+ * leaves it out). The demo signs its mock initData with the same function.
  */
 import { hmacSha256, timingSafeEqual, toHex } from './crypto';
 import { DomainError } from './errors';
@@ -29,7 +30,7 @@ export interface InitData {
 
 export function dataCheckString(params: URLSearchParams): string {
   const pairs: string[] = [];
-  for (const [k, v] of params) if (k !== 'hash' && k !== 'signature') pairs.push(`${k}=${v}`);
+  for (const [k, v] of params) if (k !== 'hash') pairs.push(`${k}=${v}`);
   return pairs.sort().join('\n');
 }
 
@@ -75,7 +76,7 @@ export async function validateInitData(
 
 /** Builds signed initData (used by the demo's mocked Telegram environment and by tests). */
 export async function signInitData(
-  fields: { user: TelegramUser; authDate?: Date; queryId?: string; startParam?: string },
+  fields: { user: TelegramUser; authDate?: Date; queryId?: string; startParam?: string; signature?: string },
   botToken: string,
 ): Promise<string> {
   const params = new URLSearchParams();
@@ -83,6 +84,7 @@ export async function signInitData(
   if (fields.queryId) params.set('query_id', fields.queryId);
   if (fields.startParam) params.set('start_param', fields.startParam);
   params.set('user', JSON.stringify(fields.user));
+  if (fields.signature) params.set('signature', fields.signature);
   params.set('hash', await computeHash(params, botToken));
   return params.toString();
 }

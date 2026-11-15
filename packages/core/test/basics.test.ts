@@ -195,6 +195,14 @@ describe('Telegram initData', () => {
     await expect(validateInitData(old, token)).rejects.toThrow(/expired/);
     await expect(validateInitData('user=%7B%7D', token)).rejects.toThrow(/hash/);
   });
+
+  it('includes the signature field in the HMAC check, as real clients send it', async () => {
+    const init = await signInitData({ user, queryId: 'AAE1', signature: 'c2lnbmF0dXJl' }, token);
+    expect((await validateInitData(init, token)).user.id).toBe(user.id);
+    const stripped = new URLSearchParams(init);
+    stripped.delete('signature');
+    await expect(validateInitData(stripped.toString(), token)).rejects.toThrow(/signature/);
+  });
   it('matches an independently computed vector (node:crypto)', async () => {
     const { createHmac } = await import('node:crypto');
     const init = await signInitData({ user, authDate: new Date(1_700_000_000_000) }, token);
