@@ -55,4 +55,12 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     await h.db.query(`update payments set provider = 'stars' where id = $1`, [paymentId]);
     expect(await stars.checkPayable({ orderId: order.id }, 1000)).toMatchObject({ ok: true });
   });
+
+  it('the reservation job never cancels an order that got paid (#16)', async () => {
+    const { buyer, order, paymentId } = await place('payme', 2);
+    expect((await h.m['sandbox.pay'](buyer, { slug: slug(), paymentId, scenario: 'success' })).status).toBe('paid');
+    h.clock.advance(31 * 60_000);
+    await h.m['jobs.expireReservations']({} as never, {} as never);
+    expect(await h.m['orders.get'](buyer, { slug: slug(), id: order.id })).toMatchObject({ status: 'paid', paymentStatus: 'paid' });
+  });
 });

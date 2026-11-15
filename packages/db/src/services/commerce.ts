@@ -989,7 +989,10 @@ export function commerceService(s: Ctx) {
       for (const d of due)
         await s.tx(d.storeId, SYSTEM, async (tx) => {
           const store = await s.storeById(tx, d.storeId);
-          const [o] = await tx.query<{ status: OrderStatus }>('select status from orders where id = $1', [d.orderId]);
+          // lock in the same order as confirmTransaction (payments, then the order) and read the status under that lock,
+          // so a payment or staff confirm committing right now is seen and never followed by a timeout cancel
+          await tx.query('select id from payments where order_id = $1 order by id for update', [d.orderId]);
+          const [o] = await tx.query<{ status: OrderStatus }>('select status from orders where id = $1 for update', [d.orderId]);
           if (o && (o.status === 'pending_payment' || o.status === 'awaiting_confirmation')) {
             await tx.query(`update payments set status = 'expired' where order_id = $1 and status in ('created','pending')`, [d.orderId]);
             await applyOrderEvent(s, tx, store, d.orderId, 'cancel', 'system', SYSTEM, { reason: 'payment_timeout' });
