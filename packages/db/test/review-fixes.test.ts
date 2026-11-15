@@ -15,9 +15,10 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
   const slug = () => ctx.store.slug;
   const variant = (k = 0) => ctx.product.variants[k]!;
   let n = 0;
-  const place = async (paymentMethod: string, k = 0, qty = 1) => {
+  const place = async (paymentMethod: string, k = 0, qty = 1, promo?: string) => {
     const buyer = await h.user(`Buyer${++n}`);
     await h.m['cart.setItem'](buyer, { slug: slug(), variantId: variant(k).id, qty });
+    if (promo) await h.m['cart.applyPromo'](buyer, { slug: slug(), code: promo });
     const q = await h.m['checkout.quote'](buyer, { slug: slug(), region: 'UZ-TK' });
     const m = q.shippingOptions.find((o) => o.type === 'courier')!;
     const r = await h.m['orders.place'](buyer, { slug: slug(), idempotencyKey: `rf-${n}`, contact: { name: 'X', phone: '+998901112233' }, methodId: m.methodId, address: ADDRESS, paymentMethod: paymentMethod as 'payme' });
@@ -106,5 +107,13 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     expect(JSON.stringify(got)).not.toContain('Amir Temur');
     const owner = await h.m['admin.orders.get'](ctx.owner, { storeId: ctx.store.id, id: order.id });
     expect((owner.contact as { phone: string }).phone).toBe('+998901112233');
+  });
+
+  it('a free-shipping discount is not counted again in the stored discount_total (#18)', async () => {
+    await h.m['admin.discounts.save'](ctx.owner, { storeId: ctx.store.id, kind: 'code', title: 'Bepul', code: 'BEPUL', valueType: 'free_shipping', value: 0, appliesTo: { type: 'all' }, combines: { order: true, product: true, shipping: true } });
+    const { order } = await place('cod', 1, 1, 'BEPUL');
+    expect(order.shippingTotal).toBe(0);
+    expect(order.discountTotal).toBe(0);
+    expect(order.subtotal - order.discountTotal + order.shippingTotal).toBe(order.total);
   });
 });

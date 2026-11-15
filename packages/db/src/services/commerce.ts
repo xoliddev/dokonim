@@ -757,7 +757,7 @@ export function commerceService(s: Ctx) {
           `insert into orders (store_id, id, number, short_id, user_id, customer_id, status, payment_status, fulfilment_kind, payment_method, currency, subtotal, discount_total, shipping_total, total, pricing,
              contact, shipping_address, shipping_method_id, shipping_method_name, delivery_promise, note, source, locale, idempotency_key, placed_at, updated_at)
            values ($1,$2,$3,$4,$5,$6,$7,'unpaid',$8,$9,'UZS',$10,$11,$12,$13,$14::jsonb,$15::jsonb,$16::jsonb,$17,$18::jsonb,$19::jsonb,$20,$21,$22,$23,$24,$24)`,
-          [store.id, orderId, orderSeq, shortId(), uid, customerId, status, fulfil, i.paymentMethod, p.subtotal, p.discountTotal, p.shippingTotal, p.total,
+          [store.id, orderId, orderSeq, shortId(), uid, customerId, status, fulfil, i.paymentMethod, p.subtotal, p.productDiscountTotal + p.orderDiscountTotal, p.shippingTotal, p.total,
             json({ applied: p.applied, explanations: p.explanations, promo: p.promo }), json({ name, phone }),
             method ? json(fulfil === 'pickup' ? { pickupPoint } : i.address) : null, method?.methodId ?? null, method ? json(method.name) : null,
             method ? json({ from: method.promise.from, to: method.promise.to }) : null, (i.note ?? '').slice(0, 500), i.source ? i.source.slice(0, 40) : null, actor.locale, i.idempotencyKey, nowIso],
