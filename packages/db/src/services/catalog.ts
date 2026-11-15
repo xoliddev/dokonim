@@ -230,7 +230,7 @@ export async function resolveRuleCategoryPaths(tx: Sql, storeId: string, rules: 
   return out;
 }
 
-async function refreshCollection(s: Ctx, tx: Sql, store: StoreRow, collectionId: string): Promise<void> {
+export async function refreshCollection(s: Ctx, tx: Sql, store: StoreRow, collectionId: string): Promise<void> {
   const [c] = await tx.query<{ kind: string; rules: CollectionRules }>('select kind, rules from collections where store_id = $1 and id = $2', [store.id, collectionId]);
   if (!c || c.kind !== 'automated') return;
   const rules = await resolveRuleCategoryPaths(tx, store.id, c.rules);

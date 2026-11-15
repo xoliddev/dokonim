@@ -258,4 +258,14 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     await h.m['admin.products.bulk'](ctx.owner, { storeId: ctx.store.id, ids: [p.id], action: 'adjust_price', params: { percent: -50 } });
     expect((await h.db.query<{ compareAtPrice: number | null }>('select compare_at_price from product_variants where product_id = $1', [p.id]))[0]!.compareAtPrice).toBeNull();
   });
+
+  it('a "new within N days" collection drops products as they age (#31)', async () => {
+    const col = await h.m['admin.collections.save'](ctx.owner, { storeId: ctx.store.id, title: { uz: 'Yangi' }, kind: 'automated', rules: { match: 'all', rules: [{ field: 'created_within_days', op: 'lte', value: 14 }] } } as never);
+    const members = async () => (await h.db.query<{ n: number }>('select count(*)::int as n from product_collections where collection_id = $1', [(col as { id: string }).id]))[0]!.n;
+    expect(await members()).toBeGreaterThan(0);
+    h.clock.advance(20 * 86_400_000);
+    const r = await h.m['jobs.refreshTimedCollections']({} as never, {} as never);
+    expect(r.refreshed).toBeGreaterThanOrEqual(1);
+    expect(await members()).toBe(0);
+  });
 });

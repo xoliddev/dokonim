@@ -10,7 +10,7 @@ import {
 } from '@dokonim/core';
 import { SandboxClick, SandboxPayme, SandboxTelegramInvoice, SandboxUzum, sandboxConfig, SANDBOX_CREDENTIALS, type SimulationResult } from '@dokonim/payments';
 import { json, type Sql } from '../client';
-import { movement, refreshProduct } from './catalog';
+import { movement, refreshCollection, refreshProduct } from './catalog';
 import { SYSTEM, type Actor, type Ctx, type StoreRow } from './ctx';
 import { loadDiscountRules, productPricingMeta, shippingOptions, type ShippingOption } from './pricing-data';
 
@@ -1063,6 +1063,13 @@ export function commerceService(s: Ctx) {
           } else await tx.query('delete from inventory_reservations where order_id = $1 and expires_at <= $2', [d.orderId, s.now().toISOString()]);
         });
       return { cancelled };
+    },
+
+    /** Re-materialises automated collections with clock-based rules ("new within N days"), so products age out. */
+    'jobs.refreshTimedCollections': async (_a?: Actor, _i?: Record<string, never>) => {
+      const due = await s.tx(null, SYSTEM, (tx) => tx.query<{ storeId: string; collectionId: string }>('select * from timed_collections()'));
+      for (const d of due) await s.tx(d.storeId, SYSTEM, async (tx) => refreshCollection(s, tx, await s.storeById(tx, d.storeId), d.collectionId));
+      return { refreshed: due.length };
     },
 
     'jobs.autoComplete': async (_a?: Actor, _i?: Record<string, never>) => {

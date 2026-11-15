@@ -3,6 +3,7 @@
  *  - outbox deliverer: outbox.claim → renderNotification → deliver(bot.api) → outbox.mark (retries/backoff live in SQL)
  *  - reservation expiry (jobs.expireReservations) every minute
  *  - auto-complete of delivered orders (jobs.autoComplete) hourly
+ *  - clock-based automated collections (jobs.refreshTimedCollections) hourly
  * Without a bot, the outbox is left untouched (rows stay `pending`, nothing is claimed) so they are delivered once a
  * bot is configured.
  */
@@ -31,6 +32,7 @@ export interface Workers {
   nudge(): void;
   runExpiry(): Promise<number>;
   runAutoComplete(): Promise<number>;
+  runTimedCollections(): Promise<number>;
   stop(): Promise<void>;
 }
 
@@ -106,11 +108,13 @@ export function startWorkers(backend: Backend, bot: { api: MessageSender } | nul
 
   const runExpiry = single(async () => (await m['jobs.expireReservations'](SYSTEM, {})).cancelled, 0);
   const runAutoComplete = single(async () => (await m['jobs.autoComplete'](SYSTEM, {})).completed, 0);
+  const runTimedCollections = single(async () => (await m['jobs.refreshTimedCollections'](SYSTEM, {})).refreshed, 0);
 
   const timers = [
     setInterval(() => void deliverNow(), opts.intervalMs ?? 2_000),
     setInterval(() => void runExpiry(), opts.expireEveryMs ?? 60_000),
     setInterval(() => void runAutoComplete(), opts.autoCompleteEveryMs ?? 3_600_000),
+    setInterval(() => void runTimedCollections(), opts.autoCompleteEveryMs ?? 3_600_000),
   ];
   for (const t of timers) t.unref?.();
 
@@ -119,6 +123,7 @@ export function startWorkers(backend: Backend, bot: { api: MessageSender } | nul
     nudge: () => void deliverNow(),
     runExpiry,
     runAutoComplete,
+    runTimedCollections,
     async stop() {
       stopped = true;
       for (const t of timers) clearInterval(t);

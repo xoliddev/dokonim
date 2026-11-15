@@ -227,6 +227,7 @@ export const ROUTES = {
   'hooks.handle': r('POST', '-', 'internal', any),
   'jobs.autoComplete': r('POST', '-', 'internal', any),
   'jobs.expireReservations': r('POST', '-', 'internal', any),
+  'jobs.refreshTimedCollections': r('POST', '-', 'internal', any),
   'outbox.claim': r('POST', '-', 'internal', any),
   'outbox.mark': r('POST', '-', 'internal', any),
 } satisfies Record<MethodName, RouteDef>;
