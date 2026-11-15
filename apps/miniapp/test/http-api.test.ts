@@ -46,10 +46,10 @@ describe('HttpApi', () => {
       }),
     );
     const c = createHttpApi('http://api', () => '');
-    expect(await c.api['me.get']({})).toEqual({ ok: true });
+    expect(await c.api['me.get'](undefined)).toEqual({ ok: true });
     expect(n).toBe(2);
     valid = 'expired';
-    const results = await Promise.all([c.api['me.get']({}), c.api['me.get']({}), c.api['me.get']({})]);
+    const results = await Promise.all([c.api['me.get'](undefined), c.api['me.get'](undefined), c.api['me.get'](undefined)]);
     expect(results).toEqual([{ ok: true }, { ok: true }, { ok: true }]);
     expect(n).toBe(3);
     expect(sessionStorage.getItem('dokonim.refresh')).toBe('R3');
