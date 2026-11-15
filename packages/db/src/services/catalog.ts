@@ -623,7 +623,9 @@ export function catalogService(s: Ctx) {
             const pct = Number(p.percent);
             if (!Number.isFinite(pct) || pct <= -100 || pct > 1000) throw new DomainError('VALIDATION', 'Percent must be between -99 and 1000', { field: 'percent' });
             const vs = await tx.query<{ id: string; price: number }>('select id, price from product_variants where store_id = $1 and product_id = any($2::uuid[])', [sid, ids]);
-            for (const v of vs) await tx.query('update product_variants set price = $2 where id = $1', [v.id, adjustPrice(v.price, pct)]);
+            // an old price that is no longer above the new price is cleared (the editor would refuse to save it)
+            for (const v of vs)
+              await tx.query('update product_variants set price = $2, compare_at_price = case when compare_at_price > $2 then compare_at_price end where id = $1', [v.id, adjustPrice(v.price, pct)]);
             break;
           }
           case 'add_tag':

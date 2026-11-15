@@ -247,4 +247,15 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     const rows = await h.db.query<{ id: string }>('select id from categories where parent_id = $1 order by position, slug', [top.id]);
     expect(rows.map((r) => r.id)).toEqual([kiyim.id, ...kids.map((k) => k.id), aksessuar.id]);
   });
+
+  it('a bulk price rise clears old prices that are no longer above the price (#30)', async () => {
+    const input = variantProduct(ctx.store.id, null, { title: 'Bulk', price: 100_000_000 });
+    input.variants = input.variants.map((v) => ({ ...v, compareAtPrice: 120_000_000 }));
+    const p = await h.m['admin.products.save'](ctx.owner, input);
+    await h.m['admin.products.bulk'](ctx.owner, { storeId: ctx.store.id, ids: [p.id], action: 'adjust_price', params: { percent: 30 } });
+    const rows = await h.db.query<{ price: number; compareAtPrice: number | null }>('select price, compare_at_price from product_variants where product_id = $1', [p.id]);
+    for (const r of rows) expect(r.compareAtPrice === null || r.compareAtPrice > r.price).toBe(true);
+    await h.m['admin.products.bulk'](ctx.owner, { storeId: ctx.store.id, ids: [p.id], action: 'adjust_price', params: { percent: -50 } });
+    expect((await h.db.query<{ compareAtPrice: number | null }>('select compare_at_price from product_variants where product_id = $1', [p.id]))[0]!.compareAtPrice).toBeNull();
+  });
 });
