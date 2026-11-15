@@ -419,7 +419,11 @@ async function refundOrder(s: Ctx, tx: Sql, store: StoreRow, o: OrderRow, provid
 }
 
 /** SQL implementation of the payments ledger port for one store (§11.3). Each call is its own tenant transaction. */
-export function sqlLedger(s: Ctx, storeId: string): PaymentLedgerPort {
+/**
+ * `scope` binds the ledger to the provider + mode whose webhook (or simulator) is calling: an open payment that belongs
+ * to another provider, another mode or another currency is never payable through it.
+ */
+export function sqlLedger(s: Ctx, storeId: string, scope?: { provider: ProviderId; mode: 'sandbox' | 'live' }): PaymentLedgerPort {
   const run = <T>(fn: (tx: Sql, store: StoreRow) => Promise<T>) => s.tx(storeId, SYSTEM, async (tx) => fn(tx, await s.storeById(tx, storeId)));
   type PRow = { id: string; orderId: string; provider: ProviderId; providerTxnId: string; amount: number; status: PaymentStatus; openedAt: string | null; createdAt: string; providerTime: string | null; performedAt: string | null; cancelledAt: string | null; cancelReason: number | null };
   const view = (p: PRow): TxnView => ({
@@ -440,13 +444,14 @@ export function sqlLedger(s: Ctx, storeId: string): PaymentLedgerPort {
           [storeId, orderId],
         );
         if (!o) return { ok: false, reason: 'not_found' };
-        const [p] = await tx.query<{ id: string; amount: number; status: PaymentStatus; currency: 'UZS' }>(
-          `select id, amount, status, currency from payments where order_id = $1 ${ref.paymentId && isUuid(ref.paymentId) ? 'and id = $2' : ''} order by (status in ('created','pending')) desc, created_at desc limit 1`,
+        const [p] = await tx.query<{ id: string; amount: number; status: PaymentStatus; currency: 'UZS'; provider: ProviderId; mode: string }>(
+          `select id, amount, status, currency, provider, mode from payments where order_id = $1 ${ref.paymentId && isUuid(ref.paymentId) ? 'and id = $2' : ''} order by (status in ('created','pending')) desc, created_at desc limit 1`,
           ref.paymentId && isUuid(ref.paymentId) ? [o.id, ref.paymentId] : [o.id],
         );
         if (o.status === 'cancelled') return { ok: false, reason: 'cancelled' };
         if (o.paymentStatus === 'paid' || p?.status === 'paid') return { ok: false, reason: 'already_paid' };
         if (o.status !== 'pending_payment' || !p) return { ok: false, reason: 'not_payable' };
+        if (scope && (p.provider !== scope.provider || p.mode !== scope.mode || (p.currency === 'XTR') !== (scope.provider === 'stars'))) return { ok: false, reason: 'not_payable' };
         if (amount !== -1 && amount !== p.amount) return { ok: false, reason: 'amount_mismatch' };
         return { ok: true, order: { orderId: o.id, orderNumber: o.number, paymentId: p.id, amount: p.amount, currency: p.currency, orderStatus: o.status, paymentStatus: p.status, isDigital: o.isDigital } };
       });
@@ -470,8 +475,8 @@ export function sqlLedger(s: Ctx, storeId: string): PaymentLedgerPort {
         if (existing) return view(existing);
         const now = s.now().toISOString();
         const [free] = await tx.query<{ id: string }>(
-          `select id from payments where store_id = $1 and order_id = $2 and provider_txn_id is null and status in ('created','pending') order by (provider = $3) desc, created_at desc limit 1`,
-          [storeId, i.orderId, i.provider],
+          `select id from payments where store_id = $1 and order_id = $2 and provider_txn_id is null and status in ('created','pending') ${scope ? 'and provider = $3 and mode = $4' : ''} order by (provider = $3) desc, created_at desc limit 1`,
+          scope ? [storeId, i.orderId, i.provider, scope.mode] : [storeId, i.orderId, i.provider],
         );
         if (free)
           await tx.query(`update payments set provider = $2, provider_txn_id = $3, status = 'pending', provider_time = $4, opened_at = $5, amount = $6 where id = $1`, [
@@ -865,15 +870,18 @@ export function commerceService(s: Ctx) {
     /** Drives the provider simulator against the real protocol handlers (sandbox mode only). */
     'sandbox.pay': async (actor: Actor, i: { slug: string; paymentId: string; scenario?: string }) => {
       const { store, payment } = await s.buyer(i.slug, actor, async (tx, store, uid) => {
-        const [payment] = await tx.query<{ id: string; orderId: string; provider: ProviderId; mode: string; amount: number; userId: string }>(
-          'select p.id, p.order_id, p.provider, p.mode, p.amount, o.user_id from payments p join orders o on o.id = p.order_id where p.store_id = $1 and p.id = $2',
+        const [payment] = await tx.query<{ id: string; orderId: string; provider: ProviderId; mode: string; status: PaymentStatus; amount: number; userId: string }>(
+          'select p.id, p.order_id, p.provider, p.mode, p.status, p.amount, o.user_id from payments p join orders o on o.id = p.order_id where p.store_id = $1 and p.id = $2',
           [store.id, i.paymentId],
         );
         if (!payment || payment.userId !== uid) throw new DomainError('NOT_FOUND', 'Payment not found');
         if (payment.mode !== 'sandbox') throw new DomainError('FORBIDDEN', 'Not a sandbox payment');
+        if (payment.status !== 'created' && payment.status !== 'pending') throw new DomainError('INVALID_TRANSITION', `payment is ${payment.status}`);
+        const cfg = (await providerConfigs(s, tx, store.id)).find((c) => c.provider === payment.provider);
+        if (cfg && cfg.mode !== 'sandbox') throw new DomainError('FORBIDDEN', 'Not a sandbox payment');
         return { store, payment };
       });
-      const ledger = sqlLedger(s, store.id);
+      const ledger = sqlLedger(s, store.id, { provider: payment.provider, mode: 'sandbox' });
       const onMessage = (m: Parameters<NonNullable<typeof s.deps.onProtocolMessage>>[1]) => s.deps.onProtocolMessage?.(store.id, m);
       let result: SimulationResult;
       const sc = i.scenario ?? 'success';
@@ -903,7 +911,7 @@ export function commerceService(s: Ctx) {
       const cfg = await s.tx(i.storeId, SYSTEM, async (tx) => (await providerConfigs(s, tx, i.storeId)).find((c) => c.provider === i.provider));
       const handler = s.deps.payments.handler(i.provider);
       if (!cfg || !cfg.enabled || !handler) return { status: 404, headers: { 'content-type': 'application/json' }, body: '{"error":"provider not configured"}' };
-      return handler.handle({ action: i.action, method: i.method, headers: i.headers, body: i.body, ip: i.ip }, cfg, sqlLedger(s, i.storeId));
+      return handler.handle({ action: i.action, method: i.method, headers: i.headers, body: i.body, ip: i.ip }, cfg, sqlLedger(s, i.storeId, { provider: cfg.provider, mode: cfg.mode }));
     },
 
     // ── Owner order management ─────────────────────────────────────────────
