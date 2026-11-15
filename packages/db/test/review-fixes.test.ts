@@ -76,4 +76,18 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     await h.m['admin.products.save'](ctx.owner, again(7));
     expect(await onHand()).toBe(6);
   });
+
+  it('an order operator cannot refund a paid order through cancel, in the API or the bot (#10)', async () => {
+    const inv = await h.m['admin.staff.invite'](ctx.owner, { storeId: ctx.store.id, role: 'order_operator' });
+    const op = await h.user('Operator');
+    await h.m['invites.accept'](op, { token: inv.token });
+    const { buyer, order, paymentId } = await place('payme', 3);
+    await h.m['sandbox.pay'](buyer, { slug: slug(), paymentId, scenario: 'success' });
+    await expect(h.m['admin.orders.transition'](op, { storeId: ctx.store.id, id: order.id, event: 'cancel' })).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    expect(await h.m['bot.orderAction'](op, { orderId: order.id, action: 'cancel' })).toMatchObject({ ok: false, code: 'FORBIDDEN' });
+    expect((await h.m['admin.orders.transition'](op, { storeId: ctx.store.id, id: order.id, event: 'confirm' })).status).toBe('confirmed');
+    // an unpaid COD order can still be cancelled by the operator
+    const cod = await place('cod', 3);
+    expect((await h.m['admin.orders.transition'](op, { storeId: ctx.store.id, id: cod.order.id, event: 'cancel' })).status).toBe('cancelled');
+  });
 });

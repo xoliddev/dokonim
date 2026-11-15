@@ -5,7 +5,7 @@ import {
 } from '@dokonim/core';
 import { json, type Sql } from '../client';
 import { ensureCategoryPath, refreshProduct } from './catalog';
-import { applyOrderEvent } from './commerce';
+import { applyOrderEvent, requireRefundFor } from './commerce';
 import { SYSTEM, type Actor, type Ctx } from './ctx';
 
 const REVENUE_STATUSES = `('paid','confirmed','packing','shipped','ready_for_pickup','delivered','completed')`;
@@ -305,8 +305,9 @@ export function insightsService(s: Ctx) {
       for (const m of memberships) {
         try {
           const r = await s.staff(m.storeId, actor, 'orders.manage', async (tx, mm) => {
-            const [o] = await tx.query<{ id: string }>('select id from orders where store_id = $1 and id = $2', [m.storeId, i.orderId]);
+            const [o] = await tx.query<{ id: string; paymentStatus: string }>('select id, payment_status from orders where store_id = $1 and id = $2 for update', [m.storeId, i.orderId]);
             if (!o) return null;
+            requireRefundFor(mm.role, o.paymentStatus, map[i.action]);
             const up = await applyOrderEvent(s, tx, mm.store, o.id, map[i.action], 'staff', actor, {});
             await s.audit(tx, m.storeId, actor, mm.role, `order.${map[i.action]}`, 'order', o.id, null, { status: up.status, via: 'bot' });
             return up.status;

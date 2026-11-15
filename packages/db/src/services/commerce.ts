@@ -3,7 +3,7 @@
  * (reservations, stock, refunds, pickup codes, notifications) inside one tenant transaction.
  */
 import {
-  allowedEvents, decryptSecret, DomainError, fulfillmentOf, isUuid, pick, pickupCode, priceCart, sha256Hex, shortId, transitionOrder,
+  allowedEvents, decryptSecret, DomainError, requirePermission, type Role, fulfillmentOf, isUuid, pick, pickupCode, priceCart, sha256Hex, shortId, transitionOrder,
   uuidv7, variantTitle, type ActorKind, type CheckResult, type FulfilmentKind, type NotificationPayload, type OrderEvent, type OrderStatus,
   type OrderSummary, type PaymentLedgerPort, type PaymentStatus, type PricingResult, type ProviderConfig, type ProviderId, type TxnView,
   type L10n, type OptionDef, type NextAction,
@@ -262,6 +262,11 @@ async function event(tx: Sql, o: OrderRow, type: string, from: string | null, to
 }
 
 /** Applies an order event with all of its effects. The single place where order status changes. */
+/** Cancelling or accepting the return of a paid order refunds it, so it needs orders.refund on top of orders.manage. */
+export function requireRefundFor(role: Role, paymentStatus: string, ev: OrderEvent): void {
+  if ((ev === 'cancel' || ev === 'accept_return') && paymentStatus === 'paid') requirePermission(role, 'orders.refund');
+}
+
 export async function applyOrderEvent(
   s: Ctx, tx: Sql, store: StoreRow, orderId: string, ev: OrderEvent, actorKind: ActorKind, actor: Actor,
   data: { trackingNumber?: string; carrier?: string; pickupCode?: string; reason?: string; providerRefunded?: boolean } = {},
@@ -951,7 +956,8 @@ export function commerceService(s: Ctx) {
     'admin.orders.transition': async (actor: Actor, i: { storeId: string; id: string; event: OrderEvent; trackingNumber?: string; carrier?: string; pickupCode?: string; reason?: string }) =>
       s.staff(i.storeId, actor, 'orders.manage', async (tx, m) => {
         if (i.event === 'pay') throw new DomainError('INVALID_TRANSITION', 'Payments are confirmed by the provider');
-        const before = await getOrder(tx, i.storeId, i.id);
+        const before = await getOrder(tx, i.storeId, i.id, true);
+        requireRefundFor(m.role, before.paymentStatus, i.event);
         const up = await applyOrderEvent(s, tx, m.store, before.id, i.event, 'staff', actor, { trackingNumber: i.trackingNumber, carrier: i.carrier, pickupCode: i.pickupCode, reason: i.reason });
         await s.audit(tx, i.storeId, actor, m.role, `order.${i.event}`, 'order', before.id, { status: before.status }, { status: up.status });
         return orderDto(tx, m.store, up, 'staff');
