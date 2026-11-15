@@ -146,3 +146,30 @@ describe.each(ADAPTERS)('webhooks over HTTP on $name', ({ make }) => {
     await bb.saveVerifiedPhone(31337, '+998901112233');
   });
 });
+
+describe.each(ADAPTERS)('webhook rate limits on $name', ({ make }) => {
+  let api: Api;
+  beforeAll(async () => {
+    api = await makeApi(make, { botWebhookSecret: WEBHOOK_SECRET, limits: { webhook: 1 } }, (be) => {
+      const bot = createBot({ token: BOT_TOKEN, botInfo, miniAppBase: 'https://t.me/dokonim_bot/shop', webAppUrl: 'https://app.dokonim.test' }, createBotBackend(be));
+      bot.api.config.use(async () => ({ ok: true, result: true }) as never);
+      return bot;
+    });
+  });
+  afterAll(() => api.close());
+
+  const tg = (secret: string | null, ip: string, update_id: number) =>
+    api.app.inject({ method: 'POST', url: '/hooks/telegram', remoteAddress: ip, headers: { 'content-type': 'application/json', ...(secret ? { 'x-telegram-bot-api-secret-token': secret } : {}) }, payload: { update_id } });
+
+  it('junk without the secret cannot starve real Telegram deliveries, and limits are per IP (#3/#12)', async () => {
+    const junk: number[] = [];
+    for (let i = 0; i < 11; i++) junk.push((await tg(null, '198.51.100.9', i)).statusCode);
+    expect(junk.at(-1)).toBe(429);
+    for (let i = 0; i < 12; i++) expect((await tg(WEBHOOK_SECRET, '149.154.167.1', 5000 + i)).statusCode).toBe(200);
+    const store = '0190a000-0000-7000-8000-000000000000';
+    const payme = (ip: string) => api.app.inject({ method: 'POST', url: `/hooks/payme/${store}`, remoteAddress: ip, headers: { 'content-type': 'application/json' }, payload: '{}' });
+    expect((await payme('198.51.100.9')).statusCode).not.toBe(429);
+    expect((await payme('198.51.100.9')).statusCode).toBe(429);
+    expect((await payme('185.234.113.1')).statusCode).not.toBe(429);
+  });
+});

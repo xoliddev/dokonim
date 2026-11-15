@@ -13,7 +13,7 @@ import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
 import type { Bot } from 'grammy';
 import { z } from 'zod';
-import { httpStatusFor, isDomainError, type ErrorCode, ERROR_CODES } from '@dokonim/core';
+import { httpStatusFor, isDomainError, timingSafeEqual, type ErrorCode, ERROR_CODES } from '@dokonim/core';
 import { ApiError, mergeRequest, ROUTES, validate, type RouteDef, type RouteName } from '@dokonim/contract';
 import { ANON, SYSTEM, type Actor, type Backend, type UserRow } from '@dokonim/db';
 import { webhookCallbackFor } from '@dokonim/bot';
@@ -283,7 +283,10 @@ export async function buildApp(opts: BuildAppOptions): Promise<FastifyInstance> 
   // ── Telegram bot webhook (grammY checks X-Telegram-Bot-Api-Secret-Token) ──
   if (opts.bot && config.botWebhookSecret) {
     const cb = webhookCallbackFor(opts.bot, config.botWebhookSecret);
-    app.post('/hooks/telegram', { config: { rateLimit: { ...routeLimit('webhook', limits), max: limits.webhook * 10 } } }, async (req, reply) => {
+    const secret = config.botWebhookSecret;
+    // Telegram's own deliveries (correct secret) are never counted; junk without it is limited per IP and then rejected by grammY.
+    const fromTelegram = (req: FastifyRequest) => timingSafeEqual(String(req.headers['x-telegram-bot-api-secret-token'] ?? ''), secret);
+    app.post('/hooks/telegram', { config: { rateLimit: { ...routeLimit('webhook', limits), max: limits.webhook * 10, allowList: fromTelegram } } }, async (req, reply) => {
       await cb(req, reply);
     });
   }
