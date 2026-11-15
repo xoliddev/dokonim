@@ -55,7 +55,7 @@ export default function ProductEditor({ params, query }: RouteProps) {
   const set = (fn: (x: ProductDraft) => ProductDraft) => setD((x) => (x ? fn(x) : x));
   const setOptions = (options: OptionDraft[]) => {
     try {
-      set((x) => ({ ...x, options, variants: regenerate(options, x.variants) }));
+      set((x) => ({ ...x, options, variants: regenerate(options, x.variants, {}, x.options) }));
     } catch (e) {
       toastError(e, t);
     }
@@ -111,7 +111,8 @@ export default function ProductEditor({ params, query }: RouteProps) {
       haptic.notify('success');
       if (restoring) {
         set((x) => ({ ...x, status: 'active' }));
-        initial.current = JSON.stringify({ ...d, status: 'active' });
+        // only the status changed on the server: keep any unsaved edits dirty against the old baseline
+        if (initial.current) initial.current = JSON.stringify({ ...(JSON.parse(initial.current) as ProductDraft), status: 'active' });
         invalidate('admin.products.get');
       } else {
         toast.success(t('seller.archived'));

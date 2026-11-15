@@ -83,3 +83,18 @@ describe('product draft validation and IO', () => {
     expect(input.variants[0]).toMatchObject({ id: 'x1', optionValueIds: ['v1'], price: 100, stock: 2 });
   });
 });
+
+describe('variant matrix — deliberately removed combos', () => {
+  it('stay removed on a rename or a new value elsewhere, but a new value still gets its combos', () => {
+    const v1 = regenerate([SIZE, COLOR], [{ ...newVariant([]), price: 100 }]);
+    const pruned = v1.filter((v) => variantLabel([SIZE, COLOR], v.optionValueIds) !== 'M / Qizil');
+    const renamed = { ...COLOR, name: 'Rangi', values: COLOR.values.map((x) => (x.label === 'Koʻk' ? { ...x, label: 'Moviy' } : x)) };
+    const v2 = regenerate([SIZE, renamed], pruned, {}, [SIZE, COLOR]);
+    expect(v2.map((v) => v.id)).toEqual(pruned.map((v) => v.id));
+    const bigger = { ...SIZE, values: [...SIZE.values, { id: 'size-L', label: 'L', swatchHex: null }] };
+    const v3 = regenerate([bigger, renamed], v2, {}, [SIZE, renamed]);
+    expect(v3).toHaveLength(8);
+    expect(v3.map((v) => variantLabel([bigger, COLOR], v.optionValueIds))).not.toContain('M / Qizil');
+    expect(v3.map((v) => variantLabel([bigger, COLOR], v.optionValueIds))).toContain('L / Qizil');
+  });
+});

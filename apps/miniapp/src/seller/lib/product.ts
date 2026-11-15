@@ -62,22 +62,29 @@ export function emptyDraft(categoryId: string | null = null): ProductDraft {
 /** Options that actually contribute to the matrix (named, with at least one value). */
 export const activeOptions = (opts: OptionDraft[]) => opts.filter((o) => o.values.length > 0);
 
-/** Rebuilds the variant list for the current options, preserving existing combos. */
-export function regenerate(options: OptionDraft[], existing: VariantDraft[], defaults: Partial<VariantDraft> = {}): VariantDraft[] {
+/**
+ * Rebuilds the variant list for the current options, preserving existing combos. With `previous` (the options the
+ * variants were built for), a combo that was already possible then but has no variant was removed on purpose and
+ * stays removed: renaming an option or adding a value elsewhere must not bring back a deleted combination.
+ */
+export function regenerate(options: OptionDraft[], existing: VariantDraft[], defaults: Partial<VariantDraft> = {}, previous?: OptionDraft[]): VariantDraft[] {
   const opts = activeOptions(options).slice(0, MAX_OPTIONS);
+  const before = previous ? activeOptions(previous).slice(0, MAX_OPTIONS).map((o) => new Set(o.values.map((v) => v.id))) : [];
+  const wasPossible = (ids: string[]) => before.length > 0 && before.length === ids.length && ids.every((id, i) => before[i]!.has(id));
   const combos = cartesian(opts.map((o) => ({ id: o.id, name: o.name, values: o.values.map((v) => ({ id: v.id, label: v.label })) })));
   const have = new Map(existing.map((v) => [comboKey(v.optionValueIds), v]));
   // a single default variant becomes the template for the first generated matrix
   const template = existing.length === 1 && existing[0]!.optionValueIds.length === 0 ? existing[0]! : null;
   const base = { ...(template ?? {}), ...defaults };
-  return combos.map((ids) => {
+  return combos.flatMap((ids) => {
     const keep = have.get(comboKey(ids));
-    if (keep) return keep;
+    if (keep) return [keep];
+    if (wasPossible(ids)) return [];
     // a combo that only gained a new option dimension inherits from its "parent" combo
     const parent = existing.find((v) => v.optionValueIds.length > 0 && v.optionValueIds.every((x) => ids.includes(x)));
     // no parent combo: fall back to the template, then to the first existing variant (e.g. options were removed)
     const src = parent ?? (template || !existing[0] ? base : { ...existing[0], ...defaults });
-    return newVariant(ids, { price: src.price ?? null, compareAtPrice: src.compareAtPrice ?? null, costPrice: src.costPrice ?? null, stock: parent ? parent.stock : template ? template.stock : (defaults.stock ?? 0), weightG: src.weightG ?? 0, trackInventory: src.trackInventory ?? true });
+    return [newVariant(ids, { price: src.price ?? null, compareAtPrice: src.compareAtPrice ?? null, costPrice: src.costPrice ?? null, stock: parent ? parent.stock : template ? template.stock : (defaults.stock ?? 0), weightG: src.weightG ?? 0, trackInventory: src.trackInventory ?? true })];
   });
 }
 
