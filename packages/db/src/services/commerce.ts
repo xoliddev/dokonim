@@ -820,6 +820,14 @@ export function commerceService(s: Ctx) {
         await tx.query(`insert into analytics_events (store_id, id, session_id, user_id, name, props, source, ts) values ($1,$2,$3,$4,'purchase',$5::jsonb,$6,$7)`, [
           store.id, uuidv7(), `u:${uid}`, uid, json({ orderId, total: p.total }), i.source ?? null, nowIso,
         ]);
+        if (prepaid && amount <= 0) {
+          // discounts covered everything: providers reject non-positive amounts, so settle the order here
+          await tx.query(`update payments set status = 'paid', performed_at = $2, paid_at = $2 where id = $1`, [paymentId, nowIso]);
+          await tx.query(`update orders set payment_status = 'paid', paid_at = $2 where id = $1`, [orderId, nowIso]);
+          await event(tx, o, 'payment', null, null, 'system', null, { provider: i.paymentMethod, amount: 0 });
+          const paidOrder = await applyOrderEvent(s, tx, store, orderId, 'pay', 'provider', SYSTEM);
+          return { order: await orderDto(tx, store, paidOrder, 'buyer'), nextAction: { type: 'none', message: '' } as NextAction, replayed: false };
+        }
         const nextAction = await nextActionFor(tx, store, o, paymentId, i.paymentMethod, amount, currency, actor.locale, cart.isDigital);
         return { order: await orderDto(tx, store, o, 'buyer'), nextAction, replayed: false };
       }),

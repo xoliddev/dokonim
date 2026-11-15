@@ -203,4 +203,17 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     const q = await h.m['checkout.quote'](buyer, { slug: 'weight-rf', region: 'UZ-TK' });
     expect(q.shippingOptions.find((o) => o.type === 'courier')!.amount).toBe(2_000_000);
   });
+
+  it('a prepaid order whose discounts bring the total to 0 is settled at placement (#24)', async () => {
+    await h.m['admin.discounts.save'](ctx.owner, { storeId: ctx.store.id, kind: 'code', title: 'Hammasi', code: 'FREE100', valueType: 'fixed', value: 100_000_000, appliesTo: { type: 'all' }, combines: { order: true, product: true, shipping: true } });
+    const buyer = await h.user('ZeroTotal');
+    await h.m['cart.setItem'](buyer, { slug: slug(), variantId: variant(3).id, qty: 1 });
+    await h.m['cart.applyPromo'](buyer, { slug: slug(), code: 'FREE100' });
+    const q = await h.m['checkout.quote'](buyer, { slug: slug(), region: 'UZ-TK' });
+    const pickup = q.shippingOptions.find((o) => o.type === 'self_pickup')!;
+    const r = await h.m['orders.place'](buyer, { slug: slug(), idempotencyKey: 'zero-total-1', contact: { name: 'Z', phone: '+998901112233' }, methodId: pickup.methodId, pickupPointId: pickup.pickupPoints[0]?.id, paymentMethod: 'payme' });
+    expect(r.order.total).toBe(0);
+    expect(r.order).toMatchObject({ status: 'paid', paymentStatus: 'paid' });
+    expect(r.nextAction.type).toBe('none');
+  });
 });
