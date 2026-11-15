@@ -5,6 +5,7 @@
  */
 import init0001 from './migrations/0001_init';
 import discountCodeArchived0002 from './migrations/0002_discount_code_archived';
+import storeStatusBeforeSuspend0003 from './migrations/0003_store_status_before_suspend';
 
 export type Row = Record<string, unknown>;
 
@@ -55,6 +56,7 @@ export async function inScope<T>(db: Database, scope: TenantScope, fn: (tx: Sql)
 export const MIGRATIONS: Array<{ id: string; sql: string }> = [
   { id: '0001_init', sql: init0001 },
   { id: '0002_discount_code_archived', sql: discountCodeArchived0002 },
+  { id: '0003_store_status_before_suspend', sql: storeStatusBeforeSuspend0003 },
 ];
 
 export async function migrate(db: Database): Promise<string[]> {

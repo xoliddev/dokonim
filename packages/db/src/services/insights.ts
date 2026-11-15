@@ -258,8 +258,24 @@ export function insightsService(s: Ctx) {
       if (!actor.isPlatformAdmin) throw new DomainError('FORBIDDEN');
       return s.tx(i.storeId, actor, async (tx) => {
         const before = await s.storeById(tx, i.storeId);
-        await tx.query(`update stores set status = $2, suspended_reason = $3 where id = $1`, [i.storeId, i.suspended ? 'suspended' : 'active', i.suspended ? (i.reason ?? '').slice(0, 300) : null]);
-        await s.audit(tx, i.storeId, actor, null, i.suspended ? 'platform.suspend' : 'platform.unsuspend', 'store', i.storeId, { status: before.status }, { status: i.suspended ? 'suspended' : 'active', reason: i.reason });
+        let status: string;
+        if (i.suspended) {
+          if (before.status === 'closed') throw new DomainError('INVALID_TRANSITION', 'A closed store cannot be suspended');
+          status = 'suspended';
+          await tx.query(
+            `update stores set status = 'suspended', suspended_reason = $2, status_before_suspend = case when status = 'suspended' then status_before_suspend else status end where id = $1`,
+            [i.storeId, (i.reason ?? '').slice(0, 300)],
+          );
+        } else {
+          // only a suspended store can be unsuspended, and it gets back the status it had (a draft is not published)
+          if (before.status !== 'suspended') throw new DomainError('INVALID_TRANSITION', 'The store is not suspended');
+          const [r] = await tx.query<{ status: string }>(
+            `update stores set status = coalesce(status_before_suspend, 'active'), status_before_suspend = null, suspended_reason = null where id = $1 returning status`,
+            [i.storeId],
+          );
+          status = r!.status;
+        }
+        await s.audit(tx, i.storeId, actor, null, i.suspended ? 'platform.suspend' : 'platform.unsuspend', 'store', i.storeId, { status: before.status }, { status, reason: i.reason });
         return { ok: true };
       });
     },

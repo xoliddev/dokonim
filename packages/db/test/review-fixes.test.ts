@@ -163,4 +163,20 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     const winner = (results.find((r) => r.status === 'fulfilled') as PromiseFulfilledResult<{ token: string }>).value.token;
     await expect(h.m['auth.rotateRefresh']({} as never, { token: winner })).rejects.toMatchObject({ code: 'UNAUTHENTICATED' });
   });
+
+  it('unsuspend restores the earlier status and never reopens a closed store (#15)', async () => {
+    const admin = { ...(await h.user('PlatformAdmin')), isPlatformAdmin: true };
+    const owner = await h.user('DraftOwner');
+    const { store } = await h.m['stores.create'](owner, { name: 'Draft shop', slug: 'draft-shop-rf', businessType: 'clothing' });
+    const status = async () => (await h.db.query<{ status: string }>('select status from stores where id = $1', [store.id]))[0]!.status;
+    await h.db.query(`update stores set status = 'draft' where id = $1`, [store.id]);
+    await expect(h.m['platform.suspend'](admin, { storeId: store.id, suspended: false })).rejects.toMatchObject({ code: 'INVALID_TRANSITION' });
+    await h.m['platform.suspend'](admin, { storeId: store.id, suspended: true, reason: 'spam' });
+    expect(await status()).toBe('suspended');
+    await h.m['platform.suspend'](admin, { storeId: store.id, suspended: false });
+    expect(await status()).toBe('draft');
+    await h.db.query(`update stores set status = 'closed' where id = $1`, [store.id]);
+    await expect(h.m['platform.suspend'](admin, { storeId: store.id, suspended: true })).rejects.toMatchObject({ code: 'INVALID_TRANSITION' });
+    expect(await status()).toBe('closed');
+  });
 });
