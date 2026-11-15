@@ -504,13 +504,21 @@ export function catalogService(s: Ctx) {
         let affected: number;
         if (i.strategy.kind === 'reparent_children') {
           const parent = node.parentId ? await getCategory(tx, sid, node.parentId) : null;
-          const children = await tx.query<{ id: string; slug: string; path: string }>('select id, slug, path::text as path from categories where store_id = $1 and parent_id = $2 order by position', [sid, node.id]);
+          const children = await tx.query<{ id: string; slug: string; path: string }>('select id, slug, path::text as path from categories where store_id = $1 and parent_id = $2 order by position, slug', [sid, node.id]);
           for (const c of children) {
             const slug = uniqueSiblingSlug(c.slug, await siblingSlugs(tx, sid, parent?.id ?? null, c.id));
             const np = pathFor(parent?.path ?? null, c.id);
             await tx.query(`update categories set path = case when nlevel(path) > nlevel($2::ltree) then $3::ltree || subpath(path, nlevel($2::ltree)) else $3::ltree end where store_id = $1 and path <@ $2::ltree`, [sid, c.path, np]);
             await tx.query('update categories set parent_id = $3, slug = $4 where store_id = $1 and id = $2', [sid, c.id, parent?.id ?? null, slug]);
           }
+          // the children take the deleted node's slot among their new siblings (positions were relative to the old parent)
+          const kids = children.map((c) => c.id);
+          const sibs = await tx.query<{ id: string }>(
+            'select id from categories where store_id = $1 and parent_id is not distinct from $2 and not (id = any($3::uuid[])) order by position, slug',
+            [sid, parent?.id ?? null, kids],
+          );
+          const order = sibs.flatMap((x) => (x.id === node.id ? kids : [x.id]));
+          for (const [k, id] of order.entries()) await tx.query('update categories set position = $3 where store_id = $1 and id = $2', [sid, id, (k + 1) * 1024]);
           const r = await tx.query<{ id: string }>('update products set category_id = $3 where store_id = $1 and category_id = $2 returning id', [sid, node.id, parent?.id ?? null]);
           affected = r.length;
           await tx.query('delete from categories where store_id = $1 and id = $2', [sid, node.id]);

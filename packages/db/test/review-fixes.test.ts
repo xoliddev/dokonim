@@ -235,4 +235,16 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     await t('cancel');
     expect(await onHand()).toBe(2);
   });
+
+  it('deleting with reparent_children puts the children in the deleted node\'s slot (#29)', async () => {
+    const mk = (name: string, parentId: string | null) => h.m['admin.categories.create'](ctx.owner, { storeId: ctx.store.id, parentId, name: { uz: name } });
+    const top = await mk('Tepa', null);
+    const kiyim = await mk('Kiyim', top.id);
+    const poyabzal = await mk('Poyabzal', top.id);
+    const aksessuar = await mk('Aksessuar', top.id);
+    const kids = [await mk('Krossovka', poyabzal.id), await mk('Tufli', poyabzal.id), await mk('Etik', poyabzal.id), await mk('Shippak', poyabzal.id)];
+    await h.m['admin.categories.delete'](ctx.owner, { storeId: ctx.store.id, id: poyabzal.id, strategy: { kind: 'reparent_children' } });
+    const rows = await h.db.query<{ id: string }>('select id from categories where parent_id = $1 order by position, slug', [top.id]);
+    expect(rows.map((r) => r.id)).toEqual([kiyim.id, ...kids.map((k) => k.id), aksessuar.id]);
+  });
 });
