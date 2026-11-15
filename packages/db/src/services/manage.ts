@@ -251,13 +251,16 @@ export function manageService(s: Ctx) {
       const r = await s.tx(null, SYSTEM, async (tx) => {
         const [t] = await tx.query<{ id: string; userId: string; familyId: string; expiresAt: string; usedAt: string | null; revokedAt: string | null }>('select * from refresh_tokens where token_hash = $1', [await sha256Hex(i.token)]);
         if (!t) throw new DomainError('UNAUTHENTICATED', 'Unknown refresh token');
-        if (t.usedAt || t.revokedAt) {
+        const revokeFamily = async () => {
           // Revoke the whole family and COMMIT that before failing (throwing here would roll the revocation back).
           await tx.query('update refresh_tokens set revoked_at = $2 where family_id = $1 and revoked_at is null', [t.familyId, s.now().toISOString()]);
           return { reused: true as const };
-        }
+        };
+        if (t.usedAt || t.revokedAt) return revokeFamily();
         if (Date.parse(t.expiresAt) < s.now().getTime()) throw new DomainError('UNAUTHENTICATED', 'Refresh token expired');
-        await tx.query('update refresh_tokens set used_at = $2 where id = $1', [t.id, s.now().toISOString()]);
+        // atomic claim: a concurrent rotation of the same token waits on the row lock, then finds it used → reuse
+        const claimed = await tx.query('update refresh_tokens set used_at = $2 where id = $1 and used_at is null and revoked_at is null returning id', [t.id, s.now().toISOString()]);
+        if (!claimed.length) return revokeFamily();
         const raw = new Uint8Array(32);
         globalThis.crypto.getRandomValues(raw);
         const token = toHex(raw);

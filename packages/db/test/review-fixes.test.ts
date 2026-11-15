@@ -152,4 +152,15 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     const again = (await save()) as { id: string };
     expect(again.id).not.toBe(first.id);
   });
+
+  it('two concurrent rotations of one refresh token never both succeed (#6/#13)', async () => {
+    const u = await h.user('Rotate');
+    const { token } = await h.m['auth.issueRefresh']({} as never, { userId: u.userId! });
+    const results = await Promise.allSettled([h.m['auth.rotateRefresh']({} as never, { token }), h.m['auth.rotateRefresh']({} as never, { token })]);
+    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+    expect(results.find((r) => r.status === 'rejected')).toMatchObject({ reason: { code: 'UNAUTHENTICATED' } });
+    // reuse revoked the family, including the token the winner got
+    const winner = (results.find((r) => r.status === 'fulfilled') as PromiseFulfilledResult<{ token: string }>).value.token;
+    await expect(h.m['auth.rotateRefresh']({} as never, { token: winner })).rejects.toMatchObject({ code: 'UNAUTHENTICATED' });
+  });
 });
