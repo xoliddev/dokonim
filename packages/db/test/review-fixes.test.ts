@@ -116,4 +116,12 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     expect(order.discountTotal).toBe(0);
     expect(order.subtotal - order.discountTotal + order.shippingTotal).toBe(order.total);
   });
+
+  it('concurrent checkouts never push a code past its usage limit (#19)', async () => {
+    const d = await h.m['admin.discounts.save'](ctx.owner, { storeId: ctx.store.id, kind: 'code', title: 'Bir marta', code: 'ONCE1', valueType: 'percent', value: 10, appliesTo: { type: 'all' }, usageLimit: 1, combines: { order: true, product: true, shipping: true } });
+    const results = await Promise.allSettled([place('cod', 0, 1, 'ONCE1'), place('cod', 0, 1, 'ONCE1')]);
+    expect(results.some((r) => r.status === 'fulfilled')).toBe(true);
+    const [row] = await h.db.query<{ usedCount: number }>('select used_count from discounts where id = $1', [(d as { id: string }).id]);
+    expect(row!.usedCount).toBeLessThanOrEqual(1);
+  });
 });

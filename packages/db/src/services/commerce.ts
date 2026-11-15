@@ -780,7 +780,16 @@ export function commerceService(s: Ctx) {
           }
         }
         for (const a of p.applied) {
-          await tx.query('update discounts set used_count = used_count + 1 where id = $1', [a.discountId]);
+          // the guarded increment locks the discount row, so concurrent checkouts re-check both limits one at a time
+          const [d] = await tx.query<{ perCustomerLimit: number | null }>(
+            'update discounts set used_count = used_count + 1 where id = $1 and (usage_limit is null or used_count < usage_limit) returning per_customer_limit',
+            [a.discountId],
+          );
+          if (!d) throw new DomainError('PROMO_INVALID', 'This discount has run out', { discountId: a.discountId, reason: 'PROMO_EXHAUSTED' });
+          if (d.perCustomerLimit != null) {
+            const [u] = await tx.query<{ n: number }>('select count(*)::int as n from discount_redemptions where discount_id = $1 and customer_id = $2', [a.discountId, customerId]);
+            if ((u?.n ?? 0) >= d.perCustomerLimit) throw new DomainError('PROMO_INVALID', 'You have already used this discount', { discountId: a.discountId, reason: 'PROMO_PER_CUSTOMER_LIMIT' });
+          }
           await tx.query('insert into discount_redemptions (store_id, discount_id, order_id, customer_id, amount) values ($1,$2,$3,$4,$5) on conflict do nothing', [store.id, a.discountId, orderId, customerId, a.amount]);
         }
         const isStars = i.paymentMethod === 'stars';
