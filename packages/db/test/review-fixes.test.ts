@@ -135,4 +135,12 @@ describe.each(ADAPTERS)('review fixes on $name', ({ make }) => {
     await expect(h.m['orders.place'](buyer, { ...input, expectedTotal: quoted - 8_000_000 })).rejects.toMatchObject({ code: 'PRICE_CHANGED' });
     expect((await h.m['orders.place'](buyer, { ...input, expectedTotal: quoted })).order.total).toBe(quoted);
   });
+
+  it('moving a category refreshes the search docs of the moved subtree (#27)', async () => {
+    const erkaklar = await h.m['admin.categories.create'](ctx.owner, { storeId: ctx.store.id, parentId: null, name: { uz: 'Erkaklar' } });
+    await h.m['admin.categories.move'](ctx.owner, { storeId: ctx.store.id, id: ctx.cats.koylak.id, parentId: erkaklar.id, index: 0 });
+    const [p] = await h.db.query<{ searchDoc: string }>('select search_doc from products where id = $1', [ctx.product.id]);
+    expect(p!.searchDoc.toLowerCase()).toContain('erkaklar');
+    expect(p!.searchDoc.toLowerCase()).not.toContain('ayollar');
+  });
 });

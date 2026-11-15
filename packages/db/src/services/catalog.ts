@@ -487,6 +487,11 @@ export function catalogService(s: Ctx) {
         const siblings = await tx.query<{ id: string; position: number }>('select id, position from categories where store_id = $1 and parent_id is not distinct from $2', [m.store.id, parent?.id ?? null]);
         for (const u of positionUpdates(siblings, node.id, i.index)) await tx.query('update categories set position = $3 where store_id = $1 and id = $2', [m.store.id, u.id, u.position]);
         const after = await getCategory(tx, m.store.id, node.id);
+        // a new parent changes the ancestor names (search docs) and paths (rule-based collections) of the subtree
+        if (after.path !== node.path) {
+          const prods = await tx.query<{ id: string }>(`select p.id from products p join categories c on c.id = p.category_id where p.store_id = $1 and c.path <@ $2::ltree`, [m.store.id, after.path]);
+          for (const p of prods) await refreshProduct(s, tx, m.store, p.id);
+        }
         await audit(tx, m.store, actor, m.role, 'category.move', 'category', node.id, { parentId: node.parentId, path: node.path, position: node.position }, { parentId: after.parentId, path: after.path, position: after.position });
         return after;
       }),
